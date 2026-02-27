@@ -528,44 +528,60 @@ sequenceDiagram
 
 ```mermaid
 graph TB
-    subgraph "User Device"
-        Browser[Web Browser<br/>Chrome/Firefox/Safari]
+    subgraph UserDevice["User Device"]
+        Browser["Web Browser
+        Chrome/Firefox/Safari"]
     end
     
-    subgraph "Application Server (Single Machine)"
-        subgraph "Docker Container / Virtual Environment"
-            StreamlitApp[Streamlit Application<br/>Port 8501]
+    subgraph AppServer["Application Server - Single Machine"]
+        subgraph Container["Docker Container / Virtual Environment"]
+            StreamlitApp["Streamlit Application
+            Port 8501"]
             
-            subgraph "Python Runtime"
-                RAGApp[RAG Application<br/>Python 3.9+]
+            subgraph PyRuntime["Python Runtime"]
+                RAGApp["RAG Application
+                Python 3.9+"]
                 
-                subgraph "ML Models (In-Memory)"
-                    SentBERT[Sentence-BERT<br/>all-MiniLM-L6-v2]
-                    SpaCy[SpaCy<br/>en_core_web_sm]
+                subgraph MLModels["ML Models - In-Memory"]
+                    SentBERT["Sentence-BERT
+                    all-MiniLM-L6-v2"]
+                    SpaCy["SpaCy
+                    en_core_web_sm"]
                 end
                 
-                subgraph "Vector Store (In-Memory)"
-                    FAISS[FAISS Index<br/>L2 Distance]
+                subgraph VectorStoreMemory["Vector Store - In-Memory"]
+                    FAISS["FAISS Index
+                    L2 Distance"]
                 end
             end
             
-            subgraph "File System"
-                Uploads[/uploads/<br/>PDF Files]
-                Indices[/indices/<br/>FAISS Binary]
-                Metadata[/metadata/<br/>JSON Files]
-                Config[/config/<br/>YAML Files]
+            subgraph FileSystem["File System"]
+                Uploads["/uploads/
+                PDF Files"]
+                Indices["/indices/
+                FAISS Binary"]
+                Metadata["/metadata/
+                JSON Files"]
+                Config["/config/
+                YAML Files"]
             end
         end
     end
     
-    subgraph "External Services (Cloud)"
-        GeminiAPI[Google Gemini API<br/>gemini-1.5-pro<br/>HTTPS]
-        HuggingFace[HuggingFace Hub<br/>Model Downloads<br/>HTTPS]
+    subgraph ExtServices["External Services - Cloud"]
+        GeminiAPI["Google Gemini API
+        gemini-1.5-pro
+        HTTPS"]
+        HuggingFace["HuggingFace Hub
+        Model Downloads
+        HTTPS"]
     end
     
-    subgraph "Development Tools"
-        Git[Git Repository<br/>GitHub]
-        PyPI[PyPI<br/>Package Manager]
+    subgraph DevTools["Development Tools"]
+        Git["Git Repository
+        GitHub"]
+        PyPI["PyPI
+        Package Manager"]
     end
     
     Browser -->|HTTPS/HTTP| StreamlitApp
@@ -578,7 +594,7 @@ graph TB
     RAGApp --> Metadata
     RAGApp --> Config
     
-    RAGApp -->|REST API<br/>HTTPS| GeminiAPI
+    RAGApp -->|REST API HTTPS| GeminiAPI
     SentBERT -.->|Model Download| HuggingFace
     SpaCy -.->|Model Download| HuggingFace
     
