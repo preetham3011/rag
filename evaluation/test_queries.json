@@ -1,0 +1,31 @@
+{
+  "research_paper_queries": [
+    {
+      "query": "What architecture does the paper propose?",
+      "intent": "METHOD",
+      "expected_sections": ["method", "architecture"]
+    },
+    {
+      "query": "What were the accuracy results on ImageNet?",
+      "intent": "RESULT",
+      "expected_sections": ["results", "experiments"]
+    },
+    {
+      "query": "How does this compare to BERT?",
+      "intent": "COMPARISON",
+      "expected_sections": ["related_work", "results"]
+    }
+  ],
+  "api_doc_queries": [
+    {
+      "query": "How do I use the authenticate() function?",
+      "intent": "API_USAGE",
+      "expected_sections": ["authentication", "examples"]
+    },
+    {
+      "query": "What is a webhook?",
+      "intent": "DEFINITION",
+      "expected_sections": ["concepts", "glossary"]
+    }
+  ]
+}

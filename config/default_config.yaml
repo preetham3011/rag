@@ -1,0 +1,45 @@
+# Adaptive Context Compression RAG Configuration
+
+# Document Processing
+chunking:
+  chunk_size: 512
+  overlap: 50
+  respect_section_boundaries: true
+
+# Embeddings
+embeddings:
+  model: "all-MiniLM-L6-v2"  # SentenceBERT model
+  dimension: 384
+
+# Vector Store
+vector_store:
+  type: "faiss"  # or "chroma"
+  persist_dir: "data/vector_db"
+
+# Retrieval
+retrieval:
+  top_k: 10
+  similarity_threshold: 0.7
+
+# Compression
+compression:
+  token_budget: 2000
+  preserve_tables: true
+  preserve_code: true
+  preserve_metrics: true
+
+# LLM
+llm:
+  model: "gpt-3.5-turbo"
+  temperature: 0.1
+  max_tokens: 500
+
+# Intent Detection
+intent:
+  use_llm: true  # Use LLM for intent detection vs heuristics
+  confidence_threshold: 0.8
+
+# Evaluation
+evaluation:
+  baseline_chunk_size: 512
+  baseline_top_k: 5
