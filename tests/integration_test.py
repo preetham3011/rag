@@ -1,9 +1,10 @@
-﻿"""Integration test for adaptive RAG system with real LLM answers"""
+"""Integration test for adaptive RAG system with real LLM answers"""
 
-from sentence_transformers import SentenceTransformer
 from src.indexing.vector_store import build_faiss_index
+from src.indexing.embedder import EmbeddingModel
 from evaluation.baseline_rag import run_baseline_rag
 from evaluation.adaptive_rag import run_adaptive_rag
+from evaluation.metrics import semantic_similarity, efficiency_score
 
 
 def create_mock_document():
@@ -14,7 +15,7 @@ def create_mock_document():
         List of chunk dicts with embeddings
     """
     print("Creating mock document...")
-    model = SentenceTransformer("all-MiniLM-L6-v2")
+    embedding_model = EmbeddingModel(model_name="all-MiniLM-L6-v2")
     
     chunks = [
         {
@@ -92,8 +93,7 @@ def create_mock_document():
     ]
     
     for chunk in chunks:
-        embedding = model.encode(chunk["text"]).tolist()
-        chunk["embedding"] = embedding
+        chunk["embedding"] = embedding_model.encode_text(chunk["text"])
     
     print(f"  Created {len(chunks)} chunks\n")
     return chunks
@@ -112,6 +112,7 @@ def run_integration_test():
     print("-" * 70)
     chunks_with_embeddings = create_mock_document()
     faiss_index, metadata_list = build_faiss_index(chunks_with_embeddings)
+    metrics_embedder = EmbeddingModel()
     print()
     
     test_queries = [
@@ -149,7 +150,12 @@ def run_integration_test():
         
         baseline_tokens = baseline_result["token_count"]
         adaptive_tokens = adaptive_result["tokens_used"]
+        baseline_answer = baseline_result["answer"]
+        adaptive_answer = adaptive_result["answer"]
         compression_ratio = (1 - adaptive_tokens / baseline_tokens) * 100 if baseline_tokens > 0 else 0
+        similarity = semantic_similarity(metrics_embedder, baseline_answer, adaptive_answer)
+        eff_baseline = efficiency_score(1.0, baseline_tokens)
+        eff_adaptive = efficiency_score(similarity, adaptive_tokens)
         
         print("COMPARISON")
         print("-" * 70)
@@ -157,28 +163,40 @@ def run_integration_test():
         print(f"Adaptive tokens:         {adaptive_tokens}")
         print(f"Compression ratio:       {compression_ratio:.1f}%")
         print()
+        print("-" * 34)
+        print(f"Similarity: {similarity:.2f}")
+        print("Efficiency:")
+        print(f"  Baseline: {eff_baseline:.4f}")
+        print(f"  Adaptive: {eff_adaptive:.4f}")
+        print("-" * 34)
+        print()
         
         print("BASELINE ANSWER:")
         print("-" * 70)
-        print(baseline_result["answer"])
+        print(baseline_answer)
         print()
         
         print("ADAPTIVE ANSWER:")
         print("-" * 70)
-        print(adaptive_result["answer"])
+        print(adaptive_answer)
         print()
     
     print("=" * 70)
     print("INTEGRATION TEST COMPLETE")
     print("=" * 70)
     print("\nKey Findings:")
-    print("✓ Baseline RAG successfully retrieves and generates answers")
-    print("✓ Adaptive compression reduces token usage significantly")
-    print("✓ Both systems produce LLM-generated answers")
-    print("✓ Token budget is enforced correctly")
-    print("✓ Answer quality can be compared directly")
+    print("[OK] Baseline RAG successfully retrieves and generates answers")
+    print("[OK] Adaptive compression reduces token usage significantly")
+    print("[OK] Both systems produce LLM-generated answers")
+    print("[OK] Token budget is enforced correctly")
+    print("[OK] Answer quality can be compared directly")
     print()
 
 
-if __name__ == "__main__":
+def main():
+    """Module entry point for `python -m tests.integration_test` and run_test.py."""
     run_integration_test()
+
+
+if __name__ == "__main__":
+    main()

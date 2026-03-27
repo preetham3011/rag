@@ -1,14 +1,15 @@
 """Section-aware chunking logic"""
 
 
-def chunk_documents(pages_with_sections: list, chunk_size: int = 1000) -> list:
+def chunk_documents(pages_with_sections: list, chunk_size: int = 850, overlap: int = 120) -> list:
     """
     Split document pages into chunks while preserving metadata.
     
     Args:
         pages_with_sections: List of dicts with format 
                             [{"page": int, "section": str, "text": str}]
-        chunk_size: Target chunk size in characters (default: 1000)
+        chunk_size: Target chunk size in characters (default: 850)
+        overlap: Approximate character overlap between consecutive chunks
         
     Returns:
         List of dicts with format:
@@ -28,7 +29,7 @@ def chunk_documents(pages_with_sections: list, chunk_size: int = 1000) -> list:
         text = page_data["text"]
         
         # Split this page's text into chunks
-        page_chunks = _split_text_into_chunks(text, chunk_size)
+        page_chunks = _split_text_into_chunks(text, chunk_size, overlap)
         
         # Add metadata to each chunk
         for chunk_text in page_chunks:
@@ -43,7 +44,7 @@ def chunk_documents(pages_with_sections: list, chunk_size: int = 1000) -> list:
     return chunks
 
 
-def _split_text_into_chunks(text: str, chunk_size: int) -> list:
+def _split_text_into_chunks(text: str, chunk_size: int, overlap: int = 120) -> list:
     """
     Split text into chunks at sentence boundaries.
     
@@ -57,6 +58,7 @@ def _split_text_into_chunks(text: str, chunk_size: int) -> list:
     Strategy:
     - Split text into sentences
     - Group sentences into chunks of approximately chunk_size
+    - Keep modest overlap between neighboring chunks to preserve local facts
     - Avoid splitting mid-sentence when possible
     """
     # Handle empty or very short text
@@ -88,8 +90,19 @@ def _split_text_into_chunks(text: str, chunk_size: int) -> list:
     # Add the last chunk if not empty
     if current_chunk.strip():
         chunks.append(current_chunk.strip())
-    
-    return chunks
+
+    if overlap <= 0 or len(chunks) <= 1:
+        return chunks
+
+    # Add overlap by prepending tail text of previous chunk.
+    overlapped_chunks = [chunks[0]]
+    for i in range(1, len(chunks)):
+        prev = overlapped_chunks[-1]
+        tail = prev[-overlap:] if len(prev) > overlap else prev
+        merged = f"{tail} {chunks[i]}".strip()
+        overlapped_chunks.append(merged)
+
+    return overlapped_chunks
 
 
 def _split_into_sentences(text: str) -> list:

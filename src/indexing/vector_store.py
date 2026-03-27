@@ -19,7 +19,8 @@ def build_faiss_index(chunks_with_embeddings: list):
             - metadata_list: List of metadata dicts aligned with index positions
     
     Index type:
-    - IndexFlatL2: Exact L2 distance search (no approximation)
+    - IndexFlatIP: Exact inner-product search (no approximation)
+    - With normalized embeddings, IP corresponds to cosine similarity
     - Simple and accurate for small to medium datasets
     """
     if not chunks_with_embeddings:
@@ -51,8 +52,9 @@ def build_faiss_index(chunks_with_embeddings: list):
     print(f"  Number of chunks: {len(embeddings)}")
     print(f"  Embedding dimension: {dimension}")
     
-    # Create FAISS index (L2 distance)
-    faiss_index = faiss.IndexFlatL2(dimension)
+    # Create FAISS index (inner product).
+    # With BGE embeddings, vectors are L2-normalized so IP == cosine similarity.
+    faiss_index = faiss.IndexFlatIP(dimension)
     
     # Add embeddings to index
     faiss_index.add(embeddings_array)
@@ -78,8 +80,9 @@ def search_index(faiss_index, metadata_list: list, query_embedding: list, top_k:
           "score": float, "rank": int}]
         
     Note:
-    - Lower L2 distance = more similar
-    - Results are sorted by similarity (best first)
+    - For compatibility with existing retrieval logic, we store `score` as `-cosine_similarity`.
+      This preserves the previous convention where "lower score = more similar".
+    - FAISS returns results sorted by highest inner product for `IndexFlatIP`.
     """
     # Convert query embedding to numpy array
     query_array = np.array([query_embedding], dtype=np.float32)
@@ -87,17 +90,17 @@ def search_index(faiss_index, metadata_list: list, query_embedding: list, top_k:
     # Ensure top_k doesn't exceed index size
     top_k = min(top_k, faiss_index.ntotal)
     
-    # Search index
-    distances, indices = faiss_index.search(query_array, top_k)
+    # Search index (FAISS returns results sorted by highest inner product)
+    inner_products, indices = faiss_index.search(query_array, top_k)
     
     # Build results with metadata
     results = []
-    for rank, (idx, distance) in enumerate(zip(indices[0], distances[0])):
+    for rank, (idx, inner_product) in enumerate(zip(indices[0], inner_products[0])):
         # Get metadata for this index position
         metadata = metadata_list[idx].copy()
         
         # Add search metadata
-        metadata["score"] = float(distance)  # L2 distance
+        metadata["score"] = float(-inner_product)  # negative cosine similarity for compatibility
         metadata["rank"] = rank + 1  # 1-indexed rank
         
         results.append(metadata)
@@ -107,14 +110,14 @@ def search_index(faiss_index, metadata_list: list, query_embedding: list, top_k:
 
 if __name__ == "__main__":
     # Test the vector store
-    from sentence_transformers import SentenceTransformer
+    from src.indexing.embedder import EmbeddingModel
     
     print("Testing FAISS Vector Store")
     print("=" * 70)
     
     # Sample chunks with embeddings
     print("Creating sample data...")
-    model = SentenceTransformer("all-MiniLM-L6-v2")
+    embedding_model = EmbeddingModel(model_name="all-MiniLM-L6-v2")
     
     sample_texts = [
         "Machine learning is a subset of artificial intelligence.",
@@ -126,7 +129,7 @@ if __name__ == "__main__":
     
     chunks_with_embeddings = []
     for i, text in enumerate(sample_texts):
-        embedding = model.encode(text).tolist()
+        embedding = embedding_model.encode_text(text)
         chunks_with_embeddings.append({
             "chunk_id": i,
             "page": i + 1,
@@ -143,7 +146,7 @@ if __name__ == "__main__":
     # Test search
     print("Testing search...")
     query_text = "What is neural network deep learning?"
-    query_embedding = model.encode(query_text).tolist()
+    query_embedding = embedding_model.encode_text(query_text)
     
     print(f"Query: '{query_text}'")
     print("-" * 70)

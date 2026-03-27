@@ -1,9 +1,58 @@
 """Generate embeddings for chunks using sentence-transformers"""
 
 from sentence_transformers import SentenceTransformer
+import numpy as np
 
 
-def generate_embeddings(chunks: list, model_name: str = "all-MiniLM-L6-v2") -> list:
+class EmbeddingModel:
+    """Reusable embedding model wrapper.
+
+    Centralizes all SentenceTransformer usage so callers never instantiate it directly.
+    """
+
+    def __init__(self, model_name: str = "BAAI/bge-large-en"):
+        # Keep compatibility with older call-sites that may still pass all-MiniLM-L6-v2.
+        resolved_model_name = "BAAI/bge-large-en" if model_name == "all-MiniLM-L6-v2" else model_name
+        self.model_name = resolved_model_name
+
+        print("Using BGE embeddings with cosine similarity")
+        self.model = SentenceTransformer(resolved_model_name)
+
+        self._normalize = self.model_name == "BAAI/bge-large-en"
+
+    def _normalize_embedding(self, embedding: np.ndarray) -> np.ndarray:
+        """L2-normalize embeddings so dot-product equals cosine similarity."""
+        if not self._normalize:
+            return embedding
+
+        norm = np.linalg.norm(embedding, ord=2)
+        if norm == 0:
+            return embedding
+        return embedding / norm
+
+    def encode_text(self, text: str) -> list:
+        """Encode a single text string into a list[float] embedding."""
+        embedding = self.model.encode(text)
+        embedding_arr = np.array(embedding)
+        embedding_arr = self._normalize_embedding(embedding_arr)
+        return embedding_arr.tolist()
+
+    def encode_batch(self, texts: list) -> list:
+        """Encode a list of texts into list[list[float]] embeddings."""
+        embeddings = self.model.encode(texts)
+        embeddings_arr = np.array(embeddings)
+        if self._normalize:
+            norms = np.linalg.norm(embeddings_arr, ord=2, axis=1, keepdims=True)
+            norms = np.clip(norms, 1e-12, None)
+            embeddings_arr = embeddings_arr / norms
+        return embeddings_arr.tolist()
+
+    def get_dimension(self) -> int:
+        """Return embedding vector dimensionality."""
+        return int(self.model.get_sentence_embedding_dimension())
+
+
+def generate_embeddings(chunks: list, model_name: str = "BAAI/bge-large-en") -> list:
     """
     Generate embeddings for document chunks.
     
@@ -18,26 +67,24 @@ def generate_embeddings(chunks: list, model_name: str = "all-MiniLM-L6-v2") -> l
           "embedding": list[float]}]
           
     Model info:
-    - all-MiniLM-L6-v2: Fast, 384-dimensional embeddings
+    - BAAI/bge-large-en: Retrieval-oriented embeddings (typically used with cosine similarity)
     - Downloads automatically on first use
     - Runs on CPU by default
     """
-    print(f"Loading embedding model: {model_name}...")
-    model = SentenceTransformer(model_name)
-    print("Model loaded successfully.\n")
+    embedder = EmbeddingModel(model_name=model_name)
     
     chunks_with_embeddings = []
     
     print(f"Generating embeddings for {len(chunks)} chunks...")
+    if not chunks:
+        print("Embedding generation complete.\n")
+        return chunks_with_embeddings
+
+    texts = [chunk["text"] for chunk in chunks]
+    embeddings = embedder.encode_batch(texts)
+
     for i, chunk in enumerate(chunks):
-        # Extract text from chunk
-        text = chunk["text"]
-        
-        # Generate embedding
-        embedding = model.encode(text)
-        
-        # Convert numpy array to list for JSON serialization
-        embedding_list = embedding.tolist()
+        embedding_list = embeddings[i]
         
         # Add embedding to chunk
         chunk_with_embedding = {

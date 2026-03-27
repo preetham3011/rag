@@ -1,9 +1,9 @@
-﻿"""Adaptive RAG with intent-aware compression"""
+"""Adaptive RAG with intent-aware compression"""
 
-from sentence_transformers import SentenceTransformer
 from src.retrieval.intent_detector import detect_intent
 from src.compression.compressor import compress_context
 from src.answering.llm import generate_answer
+from src.indexing.embedder import EmbeddingModel
 
 
 def run_adaptive_rag(
@@ -50,13 +50,14 @@ def run_adaptive_rag(
     print(f"  Intent: {intent_info['intent']} (confidence: {intent_info['confidence']:.2f})\n")
     
     print("Step 2: Embedding query...")
-    model = SentenceTransformer(embedding_model_name)
-    query_embedding = model.encode(query).tolist()
+    embedding_model = EmbeddingModel(model_name=embedding_model_name)
+    query_embedding = embedding_model.encode_text(query)
     print("  Query embedded.\n")
     
     print(f"Step 3: Compressing context (token limit: {token_limit})...")
     compression_result = compress_context(
         query_embedding=query_embedding,
+        query=query,
         intent_info=intent_info,
         faiss_index=faiss_index,
         metadata_list=metadata_list,
@@ -87,7 +88,7 @@ if __name__ == "__main__":
     print("=" * 70)
     
     print("Creating sample document index...")
-    model = SentenceTransformer("all-MiniLM-L6-v2")
+    embedding_model = EmbeddingModel(model_name="all-MiniLM-L6-v2")
     
     sample_chunks = [
         {
@@ -95,35 +96,35 @@ if __name__ == "__main__":
             "page": 1,
             "section": "Abstract",
             "text": "This paper presents a novel approach to adaptive context compression for long-document RAG systems. We propose intent-aware compression that preserves high-signal content.",
-            "embedding": model.encode("This paper presents a novel approach to adaptive context compression for long-document RAG systems.").tolist()
+            "embedding": embedding_model.encode_text("This paper presents a novel approach to adaptive context compression for long-document RAG systems.")
         },
         {
             "chunk_id": 1,
             "page": 2,
             "section": "Introduction",
             "text": "Traditional RAG systems use fixed chunking which breaks semantic coherence. Our method detects query intent and compresses evidence accordingly.",
-            "embedding": model.encode("Traditional RAG systems use fixed chunking which breaks semantic coherence.").tolist()
+            "embedding": embedding_model.encode_text("Traditional RAG systems use fixed chunking which breaks semantic coherence.")
         },
         {
             "chunk_id": 2,
             "page": 3,
             "section": "Method",
             "text": "Our pipeline consists of: 1) Intent detection, 2) Retrieval, 3) Adaptive compression, 4) Answer generation. We support five intent types: METHOD, RESULT, API_USAGE, DEFINITION, COMPARISON.",
-            "embedding": model.encode("Our pipeline consists of intent detection, retrieval, adaptive compression, and answer generation.").tolist()
+            "embedding": embedding_model.encode_text("Our pipeline consists of intent detection, retrieval, adaptive compression, and answer generation.")
         },
         {
             "chunk_id": 3,
             "page": 4,
             "section": "Results",
             "text": "We achieved 45% token reduction while maintaining 92% answer correctness. The baseline RAG used 2000 tokens on average, while our method used 1100 tokens.",
-            "embedding": model.encode("We achieved 45% token reduction while maintaining 92% answer correctness.").tolist()
+            "embedding": embedding_model.encode_text("We achieved 45% token reduction while maintaining 92% answer correctness.")
         },
         {
             "chunk_id": 4,
             "page": 5,
             "section": "Conclusion",
             "text": "Adaptive context compression significantly reduces token usage while preserving answer quality. Future work includes multi-document support and real-time compression.",
-            "embedding": model.encode("Adaptive context compression significantly reduces token usage while preserving answer quality.").tolist()
+            "embedding": embedding_model.encode_text("Adaptive context compression significantly reduces token usage while preserving answer quality.")
         }
     ]
     
