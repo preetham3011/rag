@@ -5,7 +5,7 @@ import requests
 from google import genai
 
 
-LLM_MODE = "mock"  # options: "mock", "gemini", "ollama"
+LLM_MODE = "gemini"  # options: "mock", "gemini", "ollama"
 
 
 def generate_with_ollama(prompt: str) -> str:
@@ -50,7 +50,7 @@ def _generate_with_gemini(prompt: str) -> str:
 
     client = genai.Client(api_key=api_key)
     response = client.models.generate_content(
-        model="gemini-2.5-flash",
+        model="gemini-2.5-flash-lite",
         contents=prompt,
         config={"temperature": 0.2}
     )

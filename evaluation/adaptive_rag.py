@@ -77,7 +77,8 @@ def run_adaptive_rag(
         "answer": answer,
         "compressed_context": compression_result['compressed_context'],
         "tokens_used": compression_result['tokens_used'],
-        "num_sentences": compression_result['num_sentences']
+        "num_sentences": compression_result['num_sentences'],
+        "selected_evidence": compression_result.get('selected_evidence', []),
     }
 
 
