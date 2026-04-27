@@ -3,9 +3,12 @@
 import os
 import requests
 from google import genai
+from dotenv import load_dotenv
+
+load_dotenv()
 
 
-LLM_MODE = "gemini"  # options: "mock", "gemini", "ollama"
+LLM_MODE = "groq"  # options: "mock", "gemini", "ollama", "groq"
 
 
 def generate_with_ollama(prompt: str) -> str:
@@ -37,12 +40,6 @@ def generate_with_ollama(prompt: str) -> str:
         return "Ollama returned an invalid response."
 
 
-def generate_mock_answer(context: str, query: str) -> str:
-    """Deterministic lightweight answer used for fast tests."""
-    del query  # Query is intentionally ignored in deterministic mock mode.
-    return context[:200] if context else "No context available."
-
-
 def _generate_with_gemini(prompt: str) -> str:
     api_key = os.getenv("GOOGLE_API_KEY")
     if not api_key:
@@ -50,11 +47,51 @@ def _generate_with_gemini(prompt: str) -> str:
 
     client = genai.Client(api_key=api_key)
     response = client.models.generate_content(
-        model="gemini-2.5-flash-lite",
+        model="gemini-2.5-flash",
         contents=prompt,
         config={"temperature": 0.2}
     )
     return response.text
+
+
+def generate_groq_answer(context: str, query: str) -> str:
+    api_key = os.getenv("GROQ_API_KEY")
+    if not api_key:
+        raise ValueError("GROQ_API_KEY environment variable not set")
+        
+    prompt = f"""
+You are a question answering system.
+
+Answer ONLY using the given context.
+If the answer is not present, say 'Not found in context'.
+
+Context:
+{context}
+
+Question:
+{query}
+
+Give a precise and short answer.
+"""
+    headers = {
+        "Authorization": f"Bearer {api_key}",
+        "Content-Type": "application/json"
+    }
+    payload = {
+        "model": "llama-3.3-70b-versatile",
+        "messages": [{"role": "user", "content": prompt}]
+    }
+    
+    response = requests.post(
+        "https://api.groq.com/openai/v1/chat/completions",
+        headers=headers,
+        json=payload,
+        timeout=30
+    )
+    if response.status_code != 200:
+        raise ValueError(f"Groq API Error: {response.text}")
+    response.raise_for_status()
+    return response.json()["choices"][0]["message"]["content"]
 
 
 def generate_answer(context: str, query: str) -> str:
@@ -70,44 +107,27 @@ Question:
 Answer clearly and concisely.
 """
 
-    if LLM_MODE == "mock":
-        print("Using MOCK LLM")
-        return generate_mock_answer(context, query)
-    elif LLM_MODE == "gemini":
+    if LLM_MODE == "groq" and os.getenv("GROQ_API_KEY"):
+        try:
+            print("Using GROQ LLM")
+            return generate_groq_answer(context, query)
+        except Exception as e:
+            print(f"Groq failed: {e}. Falling back to Gemini.")
+            # Fallback happens below
+    elif LLM_MODE == "groq":
+        print("GROQ_API_KEY missing. Falling back to Gemini.")
+        
+    # Gemini (default and fallback)
+    if LLM_MODE in ["gemini", "groq"]:
         print("Using GEMINI LLM")
-        return _generate_with_gemini(prompt)
+        try:
+            return _generate_with_gemini(prompt)
+        except Exception as e:
+            print(f"Gemini failed: {e}")
+            return f"LLM Generation failed: {e}. Please try again later."
     elif LLM_MODE == "ollama":
         print("Using OLLAMA LLM")
         return generate_with_ollama(prompt)
     else:
-        print(f"Unknown LLM_MODE '{LLM_MODE}', defaulting to mock mode.")
-        return generate_mock_answer(context, query)
+        raise ValueError(f"Unknown LLM_MODE '{LLM_MODE}'. Expected 'gemini', 'ollama', or 'groq'.")
 
-
-if __name__ == "__main__":
-    print("Testing LLM Answer Generation")
-    print("=" * 70)
-    
-    test_context = """
-    We achieved 45% token reduction on average across 100 test queries.
-    The baseline RAG used 2000 tokens per query, while our adaptive method used 1100 tokens.
-    Answer correctness was maintained at 92% accuracy.
-    """
-    
-    test_query = "What token reduction was achieved?"
-    
-    print(f"Context: {test_context.strip()}")
-    print(f"\nQuery: {test_query}")
-    print("\nGenerating answer...")
-    print("-" * 70)
-    
-    try:
-        answer = generate_answer(test_context, test_query)
-        print(f"Answer: {answer}")
-    except ValueError as e:
-        print(f"Error: {e}")
-        print("Set GOOGLE_API_KEY environment variable to test")
-    except Exception as e:
-        print(f"Error: {e}")
-    
-    print("=" * 70)

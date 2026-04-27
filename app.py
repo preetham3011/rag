@@ -1,11 +1,12 @@
-"""Adaptive RAG System — Research Demo Dashboard"""
+"""Adaptive RAG System — Professional Research Dashboard"""
 
 import hashlib
 import os
 import tempfile
+import time
 
-import pandas as pd
 import streamlit as st
+from dotenv import load_dotenv
 
 from evaluation.adaptive_rag import run_adaptive_rag
 from evaluation.baseline_rag import run_baseline_rag
@@ -15,128 +16,225 @@ from src.indexing.vector_store import build_faiss_index
 from src.ingestion.pdf_extractor import extract_text_from_pdf
 from src.ingestion.section_detector import detect_sections
 
-# ─────────────────────────────────────────────
-# Page config
-# ─────────────────────────────────────────────
+# Load environment variables explicitly
+load_dotenv()
+
 st.set_page_config(
-    page_title="Adaptive RAG Demo",
+    page_title="Adaptive RAG Dashboard",
     page_icon="🔬",
     layout="wide",
     initial_sidebar_state="collapsed",
 )
 
-# ─────────────────────────────────────────────
-# Minimal custom CSS — clean dark-card aesthetic
-# ─────────────────────────────────────────────
-st.markdown(
-    """
-    <style>
-    /* Global font */
-    html, body, [class*="css"] { font-family: 'Segoe UI', sans-serif; }
+st.markdown("""
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
 
-    /* Metric card accent */
-    [data-testid="stMetric"] {
-        background: #1e2130;
-        border: 1px solid #2e3250;
-        border-radius: 10px;
-        padding: 14px 18px;
-    }
-    [data-testid="stMetricLabel"]  { font-size: 0.75rem; color: #9fa8c7; }
-    [data-testid="stMetricValue"]  { font-size: 1.6rem; font-weight: 700; }
+html, body, [class*="css"] { font-family: 'Inter', sans-serif; }
 
-    /* Column answer cards */
-    .answer-card {
-        background: #161926;
-        border: 1px solid #2e3250;
-        border-radius: 12px;
-        padding: 20px 22px;
-        min-height: 160px;
-        margin-bottom: 8px;
-    }
-    .baseline-header  { color: #7b8cde; font-size: 1.15rem; font-weight: 700; }
-    .adaptive-header  { color: #43d17a; font-size: 1.15rem; font-weight: 700; }
+.stApp { background-color: #f8f9fa; }
 
-    /* Divider */
-    hr { border: 0; border-top: 1px solid #2e3250; margin: 20px 0; }
+/* Sidebar */
+[data-testid="stSidebar"] { background-color: #1e2230 !important; }
+[data-testid="stSidebar"] p,
+[data-testid="stSidebar"] span,
+[data-testid="stSidebar"] label { color: #b0b8d0 !important; }
+[data-testid="stSidebar"] h1,
+[data-testid="stSidebar"] h2,
+[data-testid="stSidebar"] h3 { color: #ffffff !important; }
 
-    /* Intent badge */
-    .intent-badge {
-        display: inline-block;
-        background: #2a3b5e;
-        color: #7ab3ff;
-        border-radius: 20px;
-        padding: 3px 14px;
-        font-size: 0.85rem;
-        font-weight: 600;
-        letter-spacing: 0.04em;
-    }
+/* Metric cards */
+[data-testid="stMetric"] {
+    background: white;
+    border: 1px solid #e8eaed;
+    border-radius: 10px;
+    padding: 18px 20px;
+    box-shadow: 0 1px 4px rgba(0,0,0,0.06);
+}
+[data-testid="stMetricValue"] { font-size: 1.7rem; font-weight: 700; color: #1a1f36; }
+[data-testid="stMetricLabel"] { font-size: 0.8rem; font-weight: 500; color: #6b7280; }
 
-    /* Sentence table */
-    .sentence-row   { background: #1a1f33; border-radius: 8px; padding: 8px 12px; margin: 4px 0; }
-    </style>
-    """,
-    unsafe_allow_html=True,
-)
+/* File uploader & inputs */
+[data-testid="stFileUploader"] {
+    background: white;
+    border: 2px dashed #d1d5db;
+    border-radius: 10px;
+    padding: 10px;
+}
 
-# ─────────────────────────────────────────────
-# HEADER
-# ─────────────────────────────────────────────
-st.markdown("## 🔬 Adaptive RAG System")
-st.markdown(
-    "<span style='color:#9fa8c7;font-size:1rem;'>"
-    "Hybrid Retrieval &nbsp;·&nbsp; Cross-Encoder Reranking &nbsp;·&nbsp; Intent-Aware Context Compression"
-    "</span>",
-    unsafe_allow_html=True,
-)
-st.markdown("---")
+/* Buttons */
+.stButton > button {
+    background-color: #2563eb;
+    color: white;
+    border: none;
+    border-radius: 8px;
+    font-weight: 600;
+    padding: 0.5rem 1.5rem;
+    font-size: 0.95rem;
+    transition: background 0.2s;
+}
+.stButton > button:hover { background-color: #1d4ed8; }
 
-# ─────────────────────────────────────────────
-# SIDEBAR — debug toggle + info
-# ─────────────────────────────────────────────
+/* Tabs */
+button[data-baseweb="tab"] { font-weight: 600; font-size: 0.85rem; }
+
+/* Section headings */
+.sec-label {
+    font-size: 0.7rem;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    color: #6b7280;
+    text-transform: uppercase;
+    margin-bottom: 10px;
+    margin-top: 28px;
+}
+.sec-title {
+    font-size: 1.65rem;
+    font-weight: 700;
+    color: #1a1f36;
+    margin-bottom: 4px;
+}
+.sec-sub {
+    font-size: 0.95rem;
+    color: #6b7280;
+    margin-bottom: 24px;
+}
+
+/* Cards */
+.card {
+    background: white;
+    border: 1px solid #e8eaed;
+    border-radius: 12px;
+    padding: 22px 24px;
+    box-shadow: 0 1px 4px rgba(0,0,0,0.05);
+    margin-bottom: 20px;
+}
+.card-label {
+    font-size: 0.72rem;
+    font-weight: 700;
+    letter-spacing: 0.07em;
+    text-transform: uppercase;
+    color: #9ca3af;
+    margin-bottom: 12px;
+}
+
+/* Pipeline nodes */
+.pipe-row {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+.pipe-node {
+    flex: 1;
+    background: #f3f4f6;
+    border: 1px solid #e5e7eb;
+    border-radius: 8px;
+    padding: 12px 8px;
+    text-align: center;
+}
+.pipe-node.done { background: #eff6ff; border-color: #bfdbfe; }
+.pipe-node.active { background: #dcfce7; border-color: #86efac; }
+.pipe-node-title { font-size: 0.78rem; font-weight: 700; color: #374151; }
+.pipe-node-sub { font-size: 0.7rem; color: #6b7280; margin-top: 3px; }
+.pipe-arrow { color: #9ca3af; font-size: 1.1rem; flex-shrink: 0; }
+
+/* Intent badge */
+.badge {
+    display: inline-block;
+    padding: 3px 12px;
+    border-radius: 20px;
+    font-size: 0.78rem;
+    font-weight: 600;
+}
+.badge-blue { background: #eff6ff; color: #2563eb; border: 1px solid #bfdbfe; }
+.badge-green { background: #f0fdf4; color: #16a34a; border: 1px solid #bbf7d0; }
+
+/* Answer panels */
+.answer-box {
+    background: white;
+    border: 1px solid #e8eaed;
+    border-radius: 10px;
+    padding: 20px 22px;
+    min-height: 200px;
+    font-size: 0.92rem;
+    color: #374151;
+    line-height: 1.7;
+    box-shadow: 0 1px 4px rgba(0,0,0,0.04);
+}
+.answer-box.adaptive { border-top: 3px solid #22c55e; }
+.answer-box.baseline { border-top: 3px solid #6b7280; }
+.answer-label {
+    font-size: 0.78rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    margin-bottom: 12px;
+}
+.answer-label.bl { color: #6b7280; }
+.answer-label.ad { color: #16a34a; }
+
+/* Token bars */
+.bar-wrap { margin-bottom: 18px; }
+.bar-header {
+    display: flex;
+    justify-content: space-between;
+    font-size: 0.8rem;
+    font-weight: 600;
+    color: #374151;
+    margin-bottom: 5px;
+}
+.bar-bg { background: #f3f4f6; border-radius: 6px; height: 16px; overflow: hidden; }
+.bar-fill-bl { background: #94a3b8; height: 100%; border-radius: 6px; }
+.bar-fill-ad { background: #22c55e; height: 100%; border-radius: 6px; }
+
+/* Evidence */
+.ev-item {
+    background: #f9fafb;
+    border-left: 3px solid #2563eb;
+    border-radius: 0 6px 6px 0;
+    padding: 10px 14px;
+    margin-bottom: 10px;
+    font-size: 0.88rem;
+    color: #374151;
+    line-height: 1.5;
+}
+.ev-meta { font-size: 0.72rem; color: #9ca3af; font-weight: 600; margin-bottom: 4px; }
+
+/* Context pre */
+.ctx-box {
+    background: #f9fafb;
+    border: 1px solid #e5e7eb;
+    border-radius: 8px;
+    padding: 16px;
+    max-height: 380px;
+    overflow-y: auto;
+    font-family: 'Menlo', 'Consolas', monospace;
+    font-size: 0.82rem;
+    color: #374151;
+    line-height: 1.6;
+    white-space: pre-wrap;
+}
+
+div.stSpinner > div { border-top-color: #2563eb !important; }
+</style>
+""", unsafe_allow_html=True)
+
+# ── Sidebar (navigation + settings only) ──────────────────────────────────────
 with st.sidebar:
-    st.markdown("## ⚙️ Settings")
-    debug = st.checkbox("Show Debug Info", value=False)
+    st.markdown("### 🔬 Adaptive RAG")
     st.markdown("---")
-    st.markdown("**Pipeline stages**")
-    st.markdown(
-        "1. PDF Extraction  \n"
-        "2. Section Detection  \n"
-        "3. Chunking (850 chars)  \n"
-        "4. BGE-Large Embedding  \n"
-        "5. FAISS IndexFlatIP  \n"
-        "---  \n"
-        "**At query time**  \n"
-        "6. Intent Detection  \n"
-        "7. Dense + BM25 Retrieval  \n"
-        "8. Cross-Encoder Rerank  \n"
-        "9. Knapsack Compression  \n"
-        "10. LLM Answer Generation"
-    )
+    st.markdown("**Pipeline**")
+    st.caption("Embedding: BAAI/bge-large-en")
+    st.caption("Retriever: FAISS + BM25 Hybrid")
+    st.caption("Reranker: MS-MARCO CrossEncoder")
+    st.caption("LLM: Gemini 2.5 Flash / Groq Llama 3.3")
+    st.markdown("---")
+    llm_provider = st.selectbox("LLM Provider", ["gemini", "groq"])
+    import src.answering.llm as llm
+    llm.LLM_MODE = llm_provider
+    debug = st.checkbox("Debug mode", value=False)
 
-# ─────────────────────────────────────────────
-# INPUT SECTION
-# ─────────────────────────────────────────────
-col_up, col_q, col_btn = st.columns([2, 3, 1])
-
-with col_up:
-    uploaded_file = st.file_uploader("📄 Upload PDF", type=["pdf"], label_visibility="collapsed")
-    if uploaded_file:
-        st.caption(f"📎 `{uploaded_file.name}`")
-
-with col_q:
-    query = st.text_input("💬 Enter your question", placeholder="e.g. What accuracy did the model achieve?")
-
-with col_btn:
-    st.markdown("<br>", unsafe_allow_html=True)
-    run_button = st.button("▶ Run Query", use_container_width=True, type="primary")
-
-if not uploaded_file:
-    st.info("⬆️ Upload a PDF to get started.")
-    st.stop()
-
-# ─────────────────────────────────────────────
-# INDEXING — cached per PDF content
-# ─────────────────────────────────────────────
+# ── Indexing helper ────────────────────────────────────────────────────────────
 @st.cache_resource(show_spinner=False)
 def build_index_for_pdf(pdf_bytes: bytes):
     tmp_path = None
@@ -144,7 +242,6 @@ def build_index_for_pdf(pdf_bytes: bytes):
         with tempfile.NamedTemporaryFile(delete=False, suffix=".pdf") as tmp:
             tmp.write(pdf_bytes)
             tmp_path = tmp.name
-
         pages = extract_text_from_pdf(tmp_path)
         pages_with_sections = detect_sections(pages)
         chunks = chunk_documents(pages_with_sections)
@@ -158,287 +255,238 @@ def build_index_for_pdf(pdf_bytes: bytes):
             except Exception:
                 pass
 
+# ── SECTION 1: Header ─────────────────────────────────────────────────────────
+st.markdown("<div class='sec-label'>Research Dashboard</div>", unsafe_allow_html=True)
+st.markdown("<div class='sec-title'>Adaptive RAG System</div>", unsafe_allow_html=True)
+st.markdown("<div class='sec-sub'>Hybrid Retrieval · Cross-Encoder Reranking · Intent-Aware Context Compression</div>", unsafe_allow_html=True)
+
+st.markdown("<hr style='border:none;border-top:1px solid #e8eaed;margin-bottom:24px;'>", unsafe_allow_html=True)
+
+# ── SECTION 2: Input controls (main area) ─────────────────────────────────────
+st.markdown("<div class='sec-label'>Step 1 — Upload & Query</div>", unsafe_allow_html=True)
+
+inp_col1, inp_col2 = st.columns([1, 1], gap="large")
+with inp_col1:
+    uploaded_file = st.file_uploader("Upload PDF document", type=["pdf"])
+with inp_col2:
+    query = st.text_area("Research question", placeholder="e.g. What accuracy was achieved by the model?", height=100)
+    run_button = st.button("Run Analysis", use_container_width=True)
+
+st.markdown("<hr style='border:none;border-top:1px solid #e8eaed;margin:20px 0 24px 0;'>", unsafe_allow_html=True)
+
+# ── Guard: no file ─────────────────────────────────────────────────────────────
+if not uploaded_file:
+    st.info("Upload a PDF document above to get started.")
+    st.stop()
 
 pdf_bytes = uploaded_file.getvalue()
 pdf_hash = hashlib.sha256(pdf_bytes).hexdigest()[:12]
 
-with st.spinner("🔄 Indexing document… (cached after first run)"):
+with st.spinner("Indexing document…"):
     faiss_index, metadata_list, num_pages, num_chunks = build_index_for_pdf(pdf_bytes)
 
-# ─────────────────────────────────────────────
-# STATUS PANEL
-# ─────────────────────────────────────────────
-st.markdown("### 📊 System Status")
-s1, s2, s3, s4 = st.columns(4)
-s1.success(f"✅ **{num_pages}** pages extracted")
-s2.success(f"✅ **{num_chunks}** chunks indexed")
-s3.info("🧠 Embedding: **BAAI/bge-large-en**")
-s4.info("🔍 Retrieval: **Dense + BM25 Hybrid**")
+# Workspace ready card
+st.markdown(f"""
+<div class='card' style='margin-bottom:0;'>
+    <div class='card-label'>Workspace</div>
+    <span class='badge badge-blue'>{num_pages} pages</span>&nbsp;
+    <span class='badge badge-blue'>{num_chunks} chunks indexed</span>&nbsp;
+    <span class='badge badge-green'>FAISS ready</span>
+    <div style='font-size:0.8rem;color:#9ca3af;margin-top:8px;'>Document: <code>{uploaded_file.name}</code> &nbsp;·&nbsp; SHA-256: <code>{pdf_hash}</code></div>
+</div>
+""", unsafe_allow_html=True)
 
-st.markdown("---")
-
-# ─────────────────────────────────────────────
-# QUERY EXECUTION
-# ─────────────────────────────────────────────
-if not run_button:
-    st.markdown(
-        "<div style='text-align:center;color:#555;padding:40px 0;font-size:1rem;'>"
-        "Enter a question and click <b>▶ Run Query</b> to see the comparison."
-        "</div>",
-        unsafe_allow_html=True,
-    )
+if not run_button or not query.strip():
+    st.markdown("<br>", unsafe_allow_html=True)
+    st.caption("Enter a question above and click **Run Analysis** to execute the pipeline.")
     st.stop()
 
-if not query or not query.strip():
-    st.warning("⚠️ Please enter a question before running.")
-    st.stop()
+# ── Run pipelines ──────────────────────────────────────────────────────────────
+with st.spinner("Running Baseline and Adaptive pipelines…"):
+    t0 = time.time()
+    baseline_result = run_baseline_rag(query=query, faiss_index=faiss_index, metadata_list=metadata_list)
+    t1 = time.time()
+    adaptive_result = run_adaptive_rag(query=query, faiss_index=faiss_index, metadata_list=metadata_list)
+    t2 = time.time()
 
-with st.spinner("⚙️ Running Baseline and Adaptive pipelines…"):
-    baseline_result = run_baseline_rag(
-        query=query,
-        faiss_index=faiss_index,
-        metadata_list=metadata_list,
-    )
-    adaptive_result = run_adaptive_rag(
-        query=query,
-        faiss_index=faiss_index,
-        metadata_list=metadata_list,
-    )
+    latency_baseline = t1 - t0
+    latency_adaptive = t2 - t1
 
-# ─── Derived values ───────────────────────────
-baseline_tokens  = baseline_result.get("token_count", 0)
-adaptive_tokens  = adaptive_result.get("tokens_used", 0)
-reduction_pct    = (
-    round((1 - adaptive_tokens / baseline_tokens) * 100, 1)
-    if baseline_tokens > 0 else 0.0
-)
-intent_info      = adaptive_result.get("intent", {})
-intent_label     = intent_info.get("intent", "UNKNOWN")
-intent_conf      = intent_info.get("confidence", 0.0)
-num_retrieved    = len(baseline_result.get("retrieved_chunks", []))
-num_sentences    = adaptive_result.get("num_sentences", 0)
-selected_ev      = adaptive_result.get("selected_evidence", [])
+baseline_tokens = baseline_result.get("token_count", 0)
+adaptive_tokens = adaptive_result.get("tokens_used", 0)
+reduction_pct   = round((1 - adaptive_tokens / baseline_tokens) * 100, 1) if baseline_tokens > 0 else 0.0
+intent_info     = adaptive_result.get("intent", {})
+intent_label    = intent_info.get("intent", "UNKNOWN")
+intent_conf     = intent_info.get("confidence", 0.0)
+num_retrieved   = len(baseline_result.get("retrieved_chunks", []))
+num_sentences   = adaptive_result.get("num_sentences", 0)
+selected_ev     = adaptive_result.get("selected_evidence", [])
 
-# ─────────────────────────────────────────────
-# INTENT DETECTION BANNER
-# ─────────────────────────────────────────────
-st.markdown("### 🧠 Detected Query Intent")
-intent_colors = {
-    "RESULT":     "#43d17a",
-    "METHOD":     "#7ab3ff",
-    "API_USAGE":  "#f5a623",
-    "DEFINITION": "#c77dff",
-    "COMPARISON": "#ff6b6b",
-}
-badge_color = intent_colors.get(intent_label, "#9fa8c7")
-st.markdown(
-    f"<span class='intent-badge' style='background:#1e2130;border:1px solid {badge_color};"
-    f"color:{badge_color};font-size:1rem;padding:5px 18px;'>"
-    f"🎯 {intent_label}</span>"
-    f"&nbsp;&nbsp;<span style='color:#9fa8c7;font-size:0.9rem;'>"
-    f"Confidence: <b>{intent_conf:.0%}</b></span>",
-    unsafe_allow_html=True,
-)
-st.markdown("---")
+st.markdown("<hr style='border:none;border-top:1px solid #e8eaed;margin:24px 0;'>", unsafe_allow_html=True)
 
-# ─────────────────────────────────────────────
-# METRICS ROW
-# ─────────────────────────────────────────────
-st.markdown("### 📈 Performance Metrics")
+# ── SECTION 3: KPI metrics ─────────────────────────────────────────────────────
+st.markdown("<div class='sec-label'>Step 2 — Performance Metrics</div>", unsafe_allow_html=True)
+
 m1, m2, m3, m4, m5 = st.columns(5)
-m1.metric("Baseline Tokens",   baseline_tokens, help="Estimated tokens sent to LLM by baseline RAG")
-m2.metric("Adaptive Tokens",   adaptive_tokens, help="Estimated tokens sent to LLM by adaptive RAG")
-m3.metric(
-    "Token Reduction",
-    f"{reduction_pct}%",
-    delta=f"-{reduction_pct}%" if reduction_pct > 0 else "0%",
-    delta_color="inverse",
-    help="Percentage fewer tokens used by adaptive vs baseline",
-)
-m4.metric("Retrieved Chunks",   num_retrieved, help="Dense + BM25 hybrid recall pool (baseline top-k)")
-m5.metric("Selected Sentences", num_sentences, help="Evidence sentences chosen by knapsack compression")
+m1.metric("Baseline Tokens", baseline_tokens)
+m2.metric("Adaptive Tokens", adaptive_tokens,
+          delta=f"-{baseline_tokens - adaptive_tokens}", delta_color="inverse")
+m3.metric("Token Reduction", f"{reduction_pct}%",
+          delta=f"{reduction_pct}%", delta_color="normal")
+m4.metric("Retrieved Chunks", num_retrieved)
+m5.metric("Selected Sentences", num_sentences)
 
-st.markdown("---")
+st.markdown("<br>", unsafe_allow_html=True)
 
-# ─────────────────────────────────────────────
-# TOKEN COMPARISON BAR CHART
-# ─────────────────────────────────────────────
-st.markdown("### 📊 Token Usage Comparison")
-chart_df = pd.DataFrame(
-    {"Tokens": [baseline_tokens, adaptive_tokens]},
-    index=["Baseline RAG", "Adaptive RAG"],
-)
-st.bar_chart(chart_df, color="#4e8cff", height=220)
+evidence_density = num_sentences / adaptive_tokens if adaptive_tokens > 0 else 0
+compression_ratio = adaptive_tokens / baseline_tokens if baseline_tokens > 0 else 0
+token_savings = baseline_tokens - adaptive_tokens
+latency_diff = latency_baseline - latency_adaptive
 
-st.markdown("---")
+n1, n2, n3, n4 = st.columns(4)
+n1.metric("Evidence Density", f"{evidence_density:.4f}")
+n2.metric("Compression Ratio", f"{compression_ratio:.2f}")
+n3.metric("Token Savings", token_savings)
+n4.metric("Latency Diff", f"{latency_diff:.2f}s", 
+          delta=f"{latency_diff:.2f}s", delta_color="normal")
 
-# ─────────────────────────────────────────────
-# SIDE-BY-SIDE ANSWER DISPLAY
-# ─────────────────────────────────────────────
-st.markdown("### 💬 Answer Comparison")
-col1, col2 = st.columns(2)
+st.markdown("<hr style='border:none;border-top:1px solid #e8eaed;margin:24px 0;'>", unsafe_allow_html=True)
 
-with col1:
-    st.markdown(
-        "<div class='answer-card'>"
-        "<p class='baseline-header'>📄 Baseline RAG</p>"
-        f"<p style='color:#cdd3f0;line-height:1.6;'>{baseline_result.get('answer','')}</p>"
-        "</div>",
-        unsafe_allow_html=True,
-    )
-    st.caption(
-        f"🔢 Tokens: **{baseline_tokens}** &nbsp;|&nbsp; "
-        f"📚 Retrieval: Dense-only (top-{num_retrieved})"
-    )
+# ── SECTION 4: Pipeline overview ──────────────────────────────────────────────
+st.markdown("<div class='sec-label'>Step 3 — Pipeline Execution</div>", unsafe_allow_html=True)
 
-with col2:
-    st.markdown(
-        "<div class='answer-card' style='border-color:#2d5a3d;'>"
-        "<p class='adaptive-header'>🚀 Adaptive RAG</p>"
-        f"<p style='color:#cdd3f0;line-height:1.6;'>{adaptive_result.get('answer','')}</p>"
-        "</div>",
-        unsafe_allow_html=True,
-    )
-    st.caption(
-        f"🔢 Tokens: **{adaptive_tokens}** &nbsp;|&nbsp; "
-        f"🎯 Intent: **{intent_label}** &nbsp;|&nbsp; "
-        f"📝 Sentences: **{num_sentences}**"
-    )
+st.markdown(f"""
+<div class='card'>
+    <div class='pipe-row'>
+        <div class='pipe-node done'>
+            <div class='pipe-node-title'>Query</div>
+            <div class='pipe-node-sub'>Intent: {intent_label}</div>
+        </div>
+        <div class='pipe-arrow'>›</div>
+        <div class='pipe-node done'>
+            <div class='pipe-node-title'>Retrieval</div>
+            <div class='pipe-node-sub'>FAISS + BM25</div>
+        </div>
+        <div class='pipe-arrow'>›</div>
+        <div class='pipe-node done'>
+            <div class='pipe-node-title'>Rerank</div>
+            <div class='pipe-node-sub'>{num_retrieved} chunks</div>
+        </div>
+        <div class='pipe-arrow'>›</div>
+        <div class='pipe-node active'>
+            <div class='pipe-node-title'>Compression</div>
+            <div class='pipe-node-sub'>{num_sentences} sentences</div>
+        </div>
+        <div class='pipe-arrow'>›</div>
+        <div class='pipe-node done'>
+            <div class='pipe-node-title'>Answer</div>
+            <div class='pipe-node-sub'>Gemini LLM</div>
+        </div>
+    </div>
+    <div style='margin-top:16px;padding-top:14px;border-top:1px solid #f3f4f6;'>
+        <span style='font-size:0.82rem;color:#6b7280;'><b>Query:</b> {query}</span>&nbsp;&nbsp;
+        <span class='badge badge-blue'>Intent: {intent_label} ({intent_conf:.0%})</span>
+    </div>
+</div>
+""", unsafe_allow_html=True)
 
-st.markdown("---")
+st.markdown("<hr style='border:none;border-top:1px solid #e8eaed;margin:24px 0;'>", unsafe_allow_html=True)
 
-# ─────────────────────────────────────────────
-# SENTENCE SELECTION INSIGHTS
-# ─────────────────────────────────────────────
-st.markdown("### 🧩 Top Selected Evidence Sentences")
-if selected_ev:
-    top_ev = selected_ev[:8]
-    ev_df = pd.DataFrame(
-        [
-            {
-                "Sentence": ev.get("sentence", "")[:120] + ("…" if len(ev.get("sentence","")) > 120 else ""),
-                "Score":    round(ev.get("score", 0.0), 3),
-                "Page":     ev.get("page", "–"),
-                "Section":  ev.get("section", "–"),
-            }
-            for ev in top_ev
-        ]
-    )
-    st.dataframe(
-        ev_df,
-        use_container_width=True,
-        hide_index=True,
-        column_config={
-            "Score": st.column_config.ProgressColumn(
-                "Score", min_value=0.0, max_value=1.0, format="%.3f"
-            )
-        },
-    )
-else:
-    st.info("No sentence-level evidence captured (context may be dominated by protected chunks).")
+# ── SECTION 5: Answer comparison ──────────────────────────────────────────────
+st.markdown("<div class='sec-label'>Step 4 — Answer Comparison</div>", unsafe_allow_html=True)
 
-st.markdown("---")
+ans1, ans2 = st.columns(2, gap="large")
+with ans1:
+    st.markdown(f"""
+    <div class='answer-box baseline'>
+        <div class='answer-label bl'>Baseline RAG</div>
+        {baseline_result.get('answer', 'No answer generated.')}
+    </div>
+    """, unsafe_allow_html=True)
+    st.caption(f"Tokens: **{baseline_tokens}** · Dense retrieval only")
 
-# ─────────────────────────────────────────────
-# CONTEXT VISUALIZATION
-# ─────────────────────────────────────────────
-st.markdown("### 🗂️ Context Visualization")
-ctx_tab1, ctx_tab2 = st.tabs(["🚀 Adaptive (Compressed)", "📄 Baseline (Full)"])
+with ans2:
+    st.markdown(f"""
+    <div class='answer-box adaptive'>
+        <div class='answer-label ad'>Adaptive RAG</div>
+        {adaptive_result.get('answer', 'No answer generated.')}
+    </div>
+    """, unsafe_allow_html=True)
+    st.caption(f"Tokens: **{adaptive_tokens}** · Intent: **{intent_label}** · Sentences: **{num_sentences}**")
 
-with ctx_tab1:
-    adaptive_ctx = adaptive_result.get("compressed_context", "")
-    st.markdown(
-        f"<span style='color:#9fa8c7;font-size:0.8rem;'>~{adaptive_tokens} tokens</span>",
-        unsafe_allow_html=True,
-    )
-    st.code(adaptive_ctx[:3000] + ("\n…[truncated]" if len(adaptive_ctx) > 3000 else ""), language="text")
+st.markdown("<hr style='border:none;border-top:1px solid #e8eaed;margin:24px 0;'>", unsafe_allow_html=True)
 
-with ctx_tab2:
-    baseline_ctx = baseline_result.get("context", "")
-    st.markdown(
-        f"<span style='color:#9fa8c7;font-size:0.8rem;'>~{baseline_tokens} tokens</span>",
-        unsafe_allow_html=True,
-    )
-    st.code(baseline_ctx[:3000] + ("\n…[truncated]" if len(baseline_ctx) > 3000 else ""), language="text")
+# ── SECTION 6: Token comparison visual ────────────────────────────────────────
+st.markdown("<div class='sec-label'>Step 5 — Token Reduction</div>", unsafe_allow_html=True)
 
-st.markdown("---")
+tok_col1, tok_col2 = st.columns([2, 1], gap="large")
+with tok_col1:
+    adaptive_bar_w = max(4, 100 - reduction_pct)
+    st.markdown(f"""
+    <div class='card'>
+        <div class='card-label'>Token Usage Comparison</div>
+        <div class='bar-wrap'>
+            <div class='bar-header'><span>Baseline RAG</span><span>{baseline_tokens} tokens</span></div>
+            <div class='bar-bg'><div class='bar-fill-bl' style='width:100%;'></div></div>
+        </div>
+        <div class='bar-wrap'>
+            <div class='bar-header'><span>Adaptive RAG</span><span>{adaptive_tokens} tokens</span></div>
+            <div class='bar-bg'><div class='bar-fill-ad' style='width:{adaptive_bar_w}%;'></div></div>
+        </div>
+    </div>
+    """, unsafe_allow_html=True)
 
-# ─────────────────────────────────────────────
-# PIPELINE VISUALIZATION (EXPANDERS)
-# ─────────────────────────────────────────────
-st.markdown("### 🔍 Pipeline Internals")
+with tok_col2:
+    saved = baseline_tokens - adaptive_tokens
+    st.markdown(f"""
+    <div class='card' style='text-align:center;'>
+        <div class='card-label'>Reduction</div>
+        <div style='font-size:3rem;font-weight:800;color:#16a34a;line-height:1;'>{reduction_pct}%</div>
+        <div style='font-size:0.8rem;color:#6b7280;margin-top:8px;'>{saved} tokens saved per query</div>
+    </div>
+    """, unsafe_allow_html=True)
 
-with st.expander("📚 Baseline Retrieved Chunks"):
-    b_chunks = baseline_result.get("retrieved_chunks", [])
-    if b_chunks:
-        for c in b_chunks:
-            st.markdown(
-                f"**Rank {c.get('rank','-')}** &nbsp;·&nbsp; "
-                f"Page {c.get('page','-')} &nbsp;·&nbsp; "
-                f"Section: `{c.get('section','-')}`"
-            )
-            st.markdown(
-                f"<div style='color:#aab0cc;font-size:0.85rem;padding-left:12px;'>"
-                f"{c.get('text','')[:300]}{'…' if len(c.get('text',''))>300 else ''}"
-                f"</div>",
-                unsafe_allow_html=True,
-            )
-            st.markdown("---")
-    else:
-        st.info("No chunks available.")
+st.markdown("<hr style='border:none;border-top:1px solid #e8eaed;margin:24px 0;'>", unsafe_allow_html=True)
 
-with st.expander("🧪 Adaptive Evidence Sentences (Scored)"):
+# ── SECTION 7: Evidence & Context ─────────────────────────────────────────────
+st.markdown("<div class='sec-label'>Step 6 — Evidence & Context</div>", unsafe_allow_html=True)
+
+tab_ev, tab_ctx_ad, tab_ctx_bl = st.tabs(["Selected Evidence", "Adaptive Context", "Baseline Context"])
+
+with tab_ev:
     if selected_ev:
-        for i, ev in enumerate(selected_ev, 1):
+        for ev in selected_ev[:8]:
             score = ev.get("score", 0.0)
-            bar = "█" * min(int(score * 20), 20)
-            st.markdown(
-                f"**#{i}** &nbsp; Score: `{score:.3f}` &nbsp; `{bar}` &nbsp;·&nbsp; "
-                f"Page {ev.get('page','-')} &nbsp;·&nbsp; `{ev.get('section','-')}`  \n"
-                f"<span style='color:#aab0cc;font-size:0.85rem;'>{ev.get('sentence','')}</span>",
-                unsafe_allow_html=True,
-            )
+            page  = ev.get("page", "–")
+            sec   = ev.get("section", "–")
+            text  = ev.get("sentence", "")
+            st.markdown(f"""
+            <div class='ev-item'>
+                <div class='ev-meta'>Page {page} &nbsp;·&nbsp; {sec} &nbsp;·&nbsp; Score: {score:.3f}</div>
+                {text}
+            </div>
+            """, unsafe_allow_html=True)
     else:
-        st.info("No evidence sentences selected.")
+        st.info("Compression relied on high-confidence protected chunks. No additional sentence-level evidence was required.")
 
-# ─────────────────────────────────────────────
-# DEBUG MODE
-# ─────────────────────────────────────────────
+with tab_ctx_ad:
+    adaptive_ctx = adaptive_result.get("compressed_context", "")
+    st.caption(f"~{adaptive_tokens} estimated tokens")
+    st.markdown(f"<div class='ctx-box'>{adaptive_ctx}</div>", unsafe_allow_html=True)
+
+with tab_ctx_bl:
+    baseline_ctx = baseline_result.get("context", "")
+    st.caption(f"~{baseline_tokens} estimated tokens")
+    st.markdown(f"<div class='ctx-box'>{baseline_ctx}</div>", unsafe_allow_html=True)
+
+# ── Debug ──────────────────────────────────────────────────────────────────────
 if debug:
-    st.markdown("---")
-    st.markdown("### 🐛 Debug Information")
-
-    with st.expander("Baseline RAG — Raw Result Dict"):
-        debug_b = {k: v for k, v in baseline_result.items() if k not in ("context",)}
-        st.json(debug_b)
-
-    with st.expander("Adaptive RAG — Raw Result Dict"):
-        debug_a = {
-            k: v
-            for k, v in adaptive_result.items()
-            if k not in ("compressed_context", "selected_evidence")
-        }
-        st.json(debug_a)
-
-    with st.expander("Intent Detection — Full Breakdown"):
+    st.markdown("<hr style='border:none;border-top:1px solid #e8eaed;margin:24px 0;'>", unsafe_allow_html=True)
+    with st.expander("Adaptive RAG — full result payload"):
+        st.json({k: v for k, v in adaptive_result.items() if k not in ("compressed_context", "selected_evidence")})
+    with st.expander("Baseline RAG — full result payload"):
+        st.json({k: v for k, v in baseline_result.items() if k not in ("context",)})
+    with st.expander("Intent detection breakdown"):
         st.json(intent_info)
-
-    with st.expander("All Selected Evidence — Full Scoring Details"):
+    with st.expander("All evidence (full scoring)"):
         st.json(selected_ev)
-
-    with st.expander("Index Metadata (first 10 chunks)"):
-        st.json(metadata_list[:10])
-
-# ─────────────────────────────────────────────
-# FOOTER
-# ─────────────────────────────────────────────
-st.markdown("---")
-st.markdown(
-    "<div style='text-align:center;color:#555;font-size:0.8rem;padding:8px 0;'>"
-    "Adaptive RAG System &nbsp;·&nbsp; "
-    "Hybrid Retrieval + Intent-Aware Compression &nbsp;·&nbsp; "
-    f"Document: <code>{uploaded_file.name}</code> &nbsp;·&nbsp; "
-    f"SHA-256: <code>{pdf_hash}</code>"
-    "</div>",
-    unsafe_allow_html=True,
-)

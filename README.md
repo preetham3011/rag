@@ -37,7 +37,7 @@ cp .env.example .env
 
 3. Run the app:
 ```bash
-streamlit run app/streamlit_app.py
+streamlit run app.py
 ```
 
 ## Project Structure

@@ -1,0 +1,62 @@
+[
+  {
+    "question": "What is the primary research question addressed by the Fluid World Models framework?",
+    "type": "definition"
+  },
+  {
+    "question": "What does the paper mean by 'self-supervised next-frame prediction' in the context of fluid dynamics?",
+    "type": "definition"
+  },
+  {
+    "question": "How does the proposed model architecture (encoder, predictor, decoder) function to predict future fluid states?",
+    "type": "method"
+  },
+  {
+    "question": "Why did the authors choose a Vision Transformer (ViT) encoder instead of a convolutional encoder?",
+    "type": "reasoning"
+  },
+  {
+    "question": "How does the factored spatiotemporal Transformer reduce computational complexity compared to full attention?",
+    "type": "method"
+  },
+  {
+    "question": "What role does the CNN decoder with PixelShuffle play in reconstructing velocity fields?",
+    "type": "method"
+  },
+  {
+    "question": "What are the components of the training loss function, and why is each term included?",
+    "type": "method"
+  },
+  {
+    "question": "What dataset is used for training and testing, and how is it partitioned across Reynolds numbers?",
+    "type": "definition"
+  },
+  {
+    "question": "How are the input fluid states represented in the dataset, and what preprocessing steps are applied?",
+    "type": "method"
+  },
+  {
+    "question": "What performance metrics are used to evaluate the model, and what results are achieved on unseen Reynolds numbers?",
+    "type": "result"
+  },
+  {
+    "question": "What evidence supports the claim of Reynolds number invariance in the model’s predictions?",
+    "type": "result"
+  },
+  {
+    "question": "How does the model perform in autoregressive rollout, and what does this indicate about its learned dynamics?",
+    "type": "result"
+  },
+  {
+    "question": "Why do the authors argue that generalization across Reynolds numbers implies implicit discovery of Navier-Stokes dynamics?",
+    "type": "reasoning"
+  },
+  {
+    "question": "What are the key limitations of the proposed approach discussed in the paper?",
+    "type": "definition"
+  },
+  {
+    "question": "What future research directions are proposed to extend the current work, particularly regarding equation extraction and generalization?",
+    "type": "reasoning"
+  }
+]

@@ -1,0 +1,291 @@
+{
+  "paper_id": "paper3",
+  "num_queries": 15,
+  "results": [
+    {
+      "query": "What is the primary objective of the study comparing FP32, AMP, and INT8 quantization techniques?",
+      "intent": "DEFINITION",
+      "baseline": {
+        "answer": "The primary objective of the study is to directly answer how quantization affects models with convolutional layers and whether AMP makes a difference at CPU inference time, considering that these questions depend heavily on architecture shape rather than technique alone.",
+        "tokens": 1081,
+        "latency": 12.259641170501709
+      },
+      "adaptive": {
+        "answer": "The primary objective of the study is to determine which approach among FP32, AMP, and Dynamic INT8 Quantization most effectively aids in deploying a CNN under hardware constraints.",
+        "tokens": 789,
+        "latency": 10.644537687301636,
+        "num_sentences": 2
+      },
+      "metrics": {
+        "token_reduction": 27.01202590194265,
+        "latency_diff": -1.6151034832000732
+      }
+    },
+    {
+      "query": "What are Automatic Mixed Precision (AMP) and Dynamic INT8 Quantization, and how do they differ from standard FP32 training?",
+      "intent": "DEFINITION",
+      "baseline": {
+        "answer": "Standard FP32 training involves using 32-bit floating-point numbers for all model parameters and computations.\n\n**Automatic Mixed Precision (AMP)** is a training optimization that utilizes a mix of FP16 and FP32 precision. Its primary benefit is to increase GPU training throughput on hardware with Tensor Core support. However, AMP does not reduce the final model size, as the weights trained under mixed precision are still stored in FP32. Consequently, it offers no speedup at CPU inference time and provides no compression benefits for deployment.\n\n**Dynamic INT8 Quantization** is an inference optimization that converts model parameters to 8-bit integers. It significantly cuts model storage (e.g., by roughly 3.69\u00d7) and provides inference speedup, even if modest, due to the strong compression advantage. It achieves this while barely touching accuracy (under 0.1% drop in most runs). Unlike AMP, INT8 directly compresses the model and is highly recommended for low-resource deployment, consistently outperforming FP32 and AMP in terms of a composite Performance Index.",
+        "tokens": 1058,
+        "latency": 14.33603572845459
+      },
+      "adaptive": {
+        "answer": "**Standard FP32 Training** is the baseline approach, where the neural network is trained and deployed using full 32-bit floating-point precision for all operations and weights.\n\n**Automatic Mixed Precision (AMP)** is an approach that uses a combination of FP32 and lower precision (e.g., FP16) during the training process to speed up computation and reduce memory usage. However, a key distinction is that the weights trained under mixed precision are ultimately **stored in FP32** regardless, meaning it doesn't significantly reduce the final model size.\n\n**Dynamic INT8 Quantization** (specifically Post-Training Quantization, PTQ) is a technique applied *after* a model has been fully trained. It converts the model's weights and activations to 8-bit integers for deployment. This approach offers significant advantages in terms of:\n*   **Model Size:** It consistently cuts storage (e.g., by 3.69\u00d7) compared to FP32 and AMP, as INT8 uses less memory.\n*   **Retraining:** It skips the retraining step entirely.\n*   **Inference Speed:** It provides modest inference speedup.\n*   **Scope:** Dynamic quantization primarily affects linear layers, leaving convolutional operations untouched.\n\nIn summary, FP32 is the full-precision baseline. AMP optimizes training by mixing precisions but stores the final model in FP32. Dynamic INT8 Quantization is a post-training method that converts to 8-bit integers, drastically reducing model size and offering modest speedup without retraining, making it ideal for hardware constraints.",
+        "tokens": 755,
+        "latency": 18.12395191192627,
+        "num_sentences": 2
+      },
+      "metrics": {
+        "token_reduction": 28.638941398865782,
+        "latency_diff": 3.7879161834716797
+      }
+    },
+    {
+      "query": "What dataset is used in the experiments, and how is it preprocessed before training?",
+      "intent": "METHOD",
+      "baseline": {
+        "answer": "Based on the provided chunks, the specific dataset used in the experiments and its preprocessing steps are not detailed. Chunk 2 indicates that \"Section III details the dataset, architecture, training setup, and metrics,\" but Section III itself is not included in the provided text.",
+        "tokens": 886,
+        "latency": 9.725871086120605
+      },
+      "adaptive": {
+        "answer": "LLM Generation failed: 503 UNAVAILABLE. {'error': {'code': 503, 'message': 'This model is currently experiencing high demand. Spikes in demand are usually temporary. Please try again later.', 'status': 'UNAVAILABLE'}}. Please try again later.",
+        "tokens": 565,
+        "latency": 9.214042901992798,
+        "num_sentences": 1
+      },
+      "metrics": {
+        "token_reduction": 36.23024830699775,
+        "latency_diff": -0.5118281841278076
+      }
+    },
+    {
+      "query": "What is the architecture of the CNN model used for benchmarking, and why was a simple architecture chosen?",
+      "intent": "DEFINITION",
+      "baseline": {
+        "answer": "The provided chunks do not specify the exact architecture of the CNN model used for benchmarking, nor do they explain why a simple architecture was chosen. Chunk 2 indicates that \"Section III details the dataset, architecture, training setup, and metrics,\" suggesting this information would be found there.",
+        "tokens": 1018,
+        "latency": 9.289812564849854
+      },
+      "adaptive": {
+        "answer": "The CNN model used for benchmarking is a simple two-block CNN with 277,578 trainable parameters.\n\nIts architecture consists of:\n*   **Block 1:** Conv2d(3\u219216, 3\u00d73) \u2192 BatchNorm \u2192 ReLU \u2192 MaxPool(2 \u00d7 2)\n*   **Block 2:** Conv2d(16\u219232, 3\u00d73) \u2192 BatchNorm \u2192 ReLU \u2192 MaxPool(2 \u00d7 2)\n*   **Classifier:** Linear(2048\u2192128) \u2192 ReLU \u2192 Linear(128\u219210)\n\nA simple architecture was chosen to ensure that any observed differences between optimization strategies (FP32, AMP, Dynamic INT8 Quantization) are attributable to the techniques themselves, rather than complex interactions with advanced architectural components like residual connections or attention mechanisms.",
+        "tokens": 777,
+        "latency": 10.886333703994751,
+        "num_sentences": 1
+      },
+      "metrics": {
+        "token_reduction": 23.673870333988212,
+        "latency_diff": 1.5965211391448975
+      }
+    },
+    {
+      "query": "How are the four training configurations (A, B, C, D) defined in terms of epochs and batch sizes?",
+      "intent": "DEFINITION",
+      "baseline": {
+        "answer": "The four training configurations are defined as follows:\n*   **Config A:** 5 epochs, batch size 128\n*   **Config B:** 5 epochs, batch size 256\n*   **Config C:** 8 epochs, batch size 128\n*   **Config D:** 8 epochs, batch size 256",
+        "tokens": 858,
+        "latency": 8.189830541610718
+      },
+      "adaptive": {
+        "answer": "The four training configurations are defined as follows:\n*   **Config A:** 5 epochs, batch size 128\n*   **Config B:** 5 epochs, batch size 256\n*   **Config C:** 8 epochs, batch size 128\n*   **Config D:** 8 epochs, batch size 256",
+        "tokens": 730,
+        "latency": 10.039478063583374,
+        "num_sentences": 2
+      },
+      "metrics": {
+        "token_reduction": 14.918414918414925,
+        "latency_diff": 1.8496475219726562
+      }
+    },
+    {
+      "query": "How is Dynamic INT8 quantization applied to the trained model, and which layers does it affect?",
+      "intent": "DEFINITION",
+      "baseline": {
+        "answer": "Dynamic INT8 quantization is applied to the base network as part of a clean benchmarking pipeline. It only affects linear layers, leaving convolutional operations untouched.",
+        "tokens": 1081,
+        "latency": 10.753453254699707
+      },
+      "adaptive": {
+        "answer": "LLM Generation failed: 429 RESOURCE_EXHAUSTED. {'error': {'code': 429, 'message': 'You exceeded your current quota, please check your plan and billing details. For more information on this error, head to: https://ai.google.dev/gemini-api/docs/rate-limits. To monitor your current usage, head to: https://ai.dev/rate-limit. \\n* Quota exceeded for metric: generativelanguage.googleapis.com/generate_content_free_tier_requests, limit: 20, model: gemini-2.5-flash\\nPlease retry in 57.068171892s.', 'status': 'RESOURCE_EXHAUSTED', 'details': [{'@type': 'type.googleapis.com/google.rpc.Help', 'links': [{'description': 'Learn more about Gemini API quotas', 'url': 'https://ai.google.dev/gemini-api/docs/rate-limits'}]}, {'@type': 'type.googleapis.com/google.rpc.QuotaFailure', 'violations': [{'quotaMetric': 'generativelanguage.googleapis.com/generate_content_free_tier_requests', 'quotaId': 'GenerateRequestsPerDayPerProjectPerModel-FreeTier', 'quotaDimensions': {'location': 'global', 'model': 'gemini-2.5-flash'}, 'quotaValue': '20'}]}, {'@type': 'type.googleapis.com/google.rpc.RetryInfo', 'retryDelay': '57s'}]}}. Please try again later.",
+        "tokens": 714,
+        "latency": 7.275660991668701,
+        "num_sentences": 1
+      },
+      "metrics": {
+        "token_reduction": 33.95004625346901,
+        "latency_diff": -3.477792263031006
+      }
+    },
+    {
+      "query": "What metrics are used to evaluate model performance, and how is the Performance Index (PI) calculated?",
+      "intent": "RESULT",
+      "baseline": {
+        "answer": "LLM Generation failed: 429 RESOURCE_EXHAUSTED. {'error': {'code': 429, 'message': 'You exceeded your current quota, please check your plan and billing details. For more information on this error, head to: https://ai.google.dev/gemini-api/docs/rate-limits. To monitor your current usage, head to: https://ai.dev/rate-limit. \\n* Quota exceeded for metric: generativelanguage.googleapis.com/generate_content_free_tier_requests, limit: 20, model: gemini-2.5-flash\\nPlease retry in 51.153283482s.', 'status': 'RESOURCE_EXHAUSTED', 'details': [{'@type': 'type.googleapis.com/google.rpc.Help', 'links': [{'description': 'Learn more about Gemini API quotas', 'url': 'https://ai.google.dev/gemini-api/docs/rate-limits'}]}, {'@type': 'type.googleapis.com/google.rpc.QuotaFailure', 'violations': [{'quotaMetric': 'generativelanguage.googleapis.com/generate_content_free_tier_requests', 'quotaId': 'GenerateRequestsPerDayPerProjectPerModel-FreeTier', 'quotaDimensions': {'model': 'gemini-2.5-flash', 'location': 'global'}, 'quotaValue': '20'}]}, {'@type': 'type.googleapis.com/google.rpc.RetryInfo', 'retryDelay': '51s'}]}}. Please try again later.",
+        "tokens": 1055,
+        "latency": 5.9278037548065186
+      },
+      "adaptive": {
+        "answer": "LLM Generation failed: 429 RESOURCE_EXHAUSTED. {'error': {'code': 429, 'message': 'You exceeded your current quota, please check your plan and billing details. For more information on this error, head to: https://ai.google.dev/gemini-api/docs/rate-limits. To monitor your current usage, head to: https://ai.dev/rate-limit. \\n* Quota exceeded for metric: generativelanguage.googleapis.com/generate_content_free_tier_requests, limit: 20, model: gemini-2.5-flash\\nPlease retry in 43.667167797s.', 'status': 'RESOURCE_EXHAUSTED', 'details': [{'@type': 'type.googleapis.com/google.rpc.Help', 'links': [{'description': 'Learn more about Gemini API quotas', 'url': 'https://ai.google.dev/gemini-api/docs/rate-limits'}]}, {'@type': 'type.googleapis.com/google.rpc.QuotaFailure', 'violations': [{'quotaMetric': 'generativelanguage.googleapis.com/generate_content_free_tier_requests', 'quotaId': 'GenerateRequestsPerDayPerProjectPerModel-FreeTier', 'quotaDimensions': {'location': 'global', 'model': 'gemini-2.5-flash'}, 'quotaValue': '20'}]}, {'@type': 'type.googleapis.com/google.rpc.RetryInfo', 'retryDelay': '43s'}]}}. Please try again later.",
+        "tokens": 684,
+        "latency": 7.5124311447143555,
+        "num_sentences": 1
+      },
+      "metrics": {
+        "token_reduction": 35.165876777251185,
+        "latency_diff": 1.584627389907837
+      }
+    },
+    {
+      "query": "How does INT8 quantization impact model accuracy compared to FP32 and AMP across different configurations?",
+      "intent": "METHOD",
+      "baseline": {
+        "answer": "INT8 quantization has a minimal impact on model accuracy, resulting in an \"under 0.1% drop in most runs.\" In contrast, AMP's accuracy varies across configurations; it achieves the highest accuracy in Config C but falls noticeably behind in Config D, suggesting sensitivity to training parameters.",
+        "tokens": 1034,
+        "latency": 10.717012405395508
+      },
+      "adaptive": {
+        "answer": "LLM Generation failed: 429 RESOURCE_EXHAUSTED. {'error': {'code': 429, 'message': 'You exceeded your current quota, please check your plan and billing details. For more information on this error, head to: https://ai.google.dev/gemini-api/docs/rate-limits. To monitor your current usage, head to: https://ai.dev/rate-limit. \\n* Quota exceeded for metric: generativelanguage.googleapis.com/generate_content_free_tier_requests, limit: 20, model: gemini-2.5-flash\\nPlease retry in 23.29850674s.', 'status': 'RESOURCE_EXHAUSTED', 'details': [{'@type': 'type.googleapis.com/google.rpc.Help', 'links': [{'description': 'Learn more about Gemini API quotas', 'url': 'https://ai.google.dev/gemini-api/docs/rate-limits'}]}, {'@type': 'type.googleapis.com/google.rpc.QuotaFailure', 'violations': [{'quotaMetric': 'generativelanguage.googleapis.com/generate_content_free_tier_requests', 'quotaId': 'GenerateRequestsPerDayPerProjectPerModel-FreeTier', 'quotaDimensions': {'location': 'global', 'model': 'gemini-2.5-flash'}, 'quotaValue': '20'}]}, {'@type': 'type.googleapis.com/google.rpc.RetryInfo', 'retryDelay': '23s'}]}}. Please try again later.",
+        "tokens": 687,
+        "latency": 9.62325930595398,
+        "num_sentences": 1
+      },
+      "metrics": {
+        "token_reduction": 33.558994197292066,
+        "latency_diff": -1.0937530994415283
+      }
+    },
+    {
+      "query": "What effect does INT8 quantization have on model size and compression ratio?",
+      "intent": "DEFINITION",
+      "baseline": {
+        "answer": "LLM Generation failed: 429 RESOURCE_EXHAUSTED. {'error': {'code': 429, 'message': 'You exceeded your current quota, please check your plan and billing details. For more information on this error, head to: https://ai.google.dev/gemini-api/docs/rate-limits. To monitor your current usage, head to: https://ai.dev/rate-limit. \\n* Quota exceeded for metric: generativelanguage.googleapis.com/generate_content_free_tier_requests, limit: 20, model: gemini-2.5-flash\\nPlease retry in 17.311191961s.', 'status': 'RESOURCE_EXHAUSTED', 'details': [{'@type': 'type.googleapis.com/google.rpc.Help', 'links': [{'description': 'Learn more about Gemini API quotas', 'url': 'https://ai.google.dev/gemini-api/docs/rate-limits'}]}, {'@type': 'type.googleapis.com/google.rpc.QuotaFailure', 'violations': [{'quotaMetric': 'generativelanguage.googleapis.com/generate_content_free_tier_requests', 'quotaId': 'GenerateRequestsPerDayPerProjectPerModel-FreeTier', 'quotaDimensions': {'model': 'gemini-2.5-flash', 'location': 'global'}, 'quotaValue': '20'}]}, {'@type': 'type.googleapis.com/google.rpc.RetryInfo', 'retryDelay': '17s'}]}}. Please try again later.",
+        "tokens": 1081,
+        "latency": 6.0401694774627686
+      },
+      "adaptive": {
+        "answer": "LLM Generation failed: 429 RESOURCE_EXHAUSTED. {'error': {'code': 429, 'message': 'You exceeded your current quota, please check your plan and billing details. For more information on this error, head to: https://ai.google.dev/gemini-api/docs/rate-limits. To monitor your current usage, head to: https://ai.dev/rate-limit. \\n* Quota exceeded for metric: generativelanguage.googleapis.com/generate_content_free_tier_requests, limit: 20, model: gemini-2.5-flash\\nPlease retry in 10.299415788s.', 'status': 'RESOURCE_EXHAUSTED', 'details': [{'@type': 'type.googleapis.com/google.rpc.Help', 'links': [{'description': 'Learn more about Gemini API quotas', 'url': 'https://ai.google.dev/gemini-api/docs/rate-limits'}]}, {'@type': 'type.googleapis.com/google.rpc.QuotaFailure', 'violations': [{'quotaMetric': 'generativelanguage.googleapis.com/generate_content_free_tier_requests', 'quotaId': 'GenerateRequestsPerDayPerProjectPerModel-FreeTier', 'quotaDimensions': {'location': 'global', 'model': 'gemini-2.5-flash'}, 'quotaValue': '20'}]}, {'@type': 'type.googleapis.com/google.rpc.RetryInfo', 'retryDelay': '10s'}]}}. Please try again later.",
+        "tokens": 791,
+        "latency": 6.970592021942139,
+        "num_sentences": 2
+      },
+      "metrics": {
+        "token_reduction": 26.827012025901944,
+        "latency_diff": 0.9304225444793701
+      }
+    },
+    {
+      "query": "How do inference time and speedup differ between FP32, AMP, and INT8 models on CPU?",
+      "intent": "METHOD",
+      "baseline": {
+        "answer": "LLM Generation failed: 429 RESOURCE_EXHAUSTED. {'error': {'code': 429, 'message': 'You exceeded your current quota, please check your plan and billing details. For more information on this error, head to: https://ai.google.dev/gemini-api/docs/rate-limits. To monitor your current usage, head to: https://ai.dev/rate-limit. \\n* Quota exceeded for metric: generativelanguage.googleapis.com/generate_content_free_tier_requests, limit: 20, model: gemini-2.5-flash\\nPlease retry in 4.467096179s.', 'status': 'RESOURCE_EXHAUSTED', 'details': [{'@type': 'type.googleapis.com/google.rpc.Help', 'links': [{'description': 'Learn more about Gemini API quotas', 'url': 'https://ai.google.dev/gemini-api/docs/rate-limits'}]}, {'@type': 'type.googleapis.com/google.rpc.QuotaFailure', 'violations': [{'quotaMetric': 'generativelanguage.googleapis.com/generate_content_free_tier_requests', 'quotaId': 'GenerateRequestsPerDayPerProjectPerModel-FreeTier', 'quotaDimensions': {'location': 'global', 'model': 'gemini-2.5-flash'}, 'quotaValue': '20'}]}, {'@type': 'type.googleapis.com/google.rpc.RetryInfo', 'retryDelay': '4s'}]}}. Please try again later.",
+        "tokens": 1036,
+        "latency": 5.830824851989746
+      },
+      "adaptive": {
+        "answer": "LLM Generation failed: 429 RESOURCE_EXHAUSTED. {'error': {'code': 429, 'message': 'You exceeded your current quota, please check your plan and billing details. For more information on this error, head to: https://ai.google.dev/gemini-api/docs/rate-limits. To monitor your current usage, head to: https://ai.dev/rate-limit. \\n* Quota exceeded for metric: generativelanguage.googleapis.com/generate_content_free_tier_requests, limit: 20, model: gemini-2.5-flash\\nPlease retry in 57.707637053s.', 'status': 'RESOURCE_EXHAUSTED', 'details': [{'@type': 'type.googleapis.com/google.rpc.Help', 'links': [{'description': 'Learn more about Gemini API quotas', 'url': 'https://ai.google.dev/gemini-api/docs/rate-limits'}]}, {'@type': 'type.googleapis.com/google.rpc.QuotaFailure', 'violations': [{'quotaMetric': 'generativelanguage.googleapis.com/generate_content_free_tier_requests', 'quotaId': 'GenerateRequestsPerDayPerProjectPerModel-FreeTier', 'quotaDimensions': {'location': 'global', 'model': 'gemini-2.5-flash'}, 'quotaValue': '20'}]}, {'@type': 'type.googleapis.com/google.rpc.RetryInfo', 'retryDelay': '57s'}]}}. Please try again later.",
+        "tokens": 758,
+        "latency": 6.756856441497803,
+        "num_sentences": 2
+      },
+      "metrics": {
+        "token_reduction": 26.833976833976834,
+        "latency_diff": 0.9260315895080566
+      }
+    },
+    {
+      "query": "Why does INT8 quantization provide significant compression but only modest inference speedup in this study?",
+      "intent": "DEFINITION",
+      "baseline": {
+        "answer": "LLM Generation failed: 429 RESOURCE_EXHAUSTED. {'error': {'code': 429, 'message': 'You exceeded your current quota, please check your plan and billing details. For more information on this error, head to: https://ai.google.dev/gemini-api/docs/rate-limits. To monitor your current usage, head to: https://ai.dev/rate-limit. \\n* Quota exceeded for metric: generativelanguage.googleapis.com/generate_content_free_tier_requests, limit: 20, model: gemini-2.5-flash\\nPlease retry in 52.069033702s.', 'status': 'RESOURCE_EXHAUSTED', 'details': [{'@type': 'type.googleapis.com/google.rpc.Help', 'links': [{'description': 'Learn more about Gemini API quotas', 'url': 'https://ai.google.dev/gemini-api/docs/rate-limits'}]}, {'@type': 'type.googleapis.com/google.rpc.QuotaFailure', 'violations': [{'quotaMetric': 'generativelanguage.googleapis.com/generate_content_free_tier_requests', 'quotaId': 'GenerateRequestsPerDayPerProjectPerModel-FreeTier', 'quotaDimensions': {'location': 'global', 'model': 'gemini-2.5-flash'}, 'quotaValue': '20'}]}, {'@type': 'type.googleapis.com/google.rpc.RetryInfo', 'retryDelay': '52s'}]}}. Please try again later.",
+        "tokens": 1081,
+        "latency": 5.63463282585144
+      },
+      "adaptive": {
+        "answer": "LLM Generation failed: 429 RESOURCE_EXHAUSTED. {'error': {'code': 429, 'message': 'You exceeded your current quota, please check your plan and billing details. For more information on this error, head to: https://ai.google.dev/gemini-api/docs/rate-limits. To monitor your current usage, head to: https://ai.dev/rate-limit. \\n* Quota exceeded for metric: generativelanguage.googleapis.com/generate_content_free_tier_requests, limit: 20, model: gemini-2.5-flash\\nPlease retry in 44.674680375s.', 'status': 'RESOURCE_EXHAUSTED', 'details': [{'@type': 'type.googleapis.com/google.rpc.Help', 'links': [{'description': 'Learn more about Gemini API quotas', 'url': 'https://ai.google.dev/gemini-api/docs/rate-limits'}]}, {'@type': 'type.googleapis.com/google.rpc.QuotaFailure', 'violations': [{'quotaMetric': 'generativelanguage.googleapis.com/generate_content_free_tier_requests', 'quotaId': 'GenerateRequestsPerDayPerProjectPerModel-FreeTier', 'quotaDimensions': {'location': 'global', 'model': 'gemini-2.5-flash'}, 'quotaValue': '20'}]}, {'@type': 'type.googleapis.com/google.rpc.RetryInfo', 'retryDelay': '44s'}]}}. Please try again later.",
+        "tokens": 757,
+        "latency": 7.377948045730591,
+        "num_sentences": 2
+      },
+      "metrics": {
+        "token_reduction": 29.972247918593897,
+        "latency_diff": 1.7433152198791504
+      }
+    },
+    {
+      "query": "Why does AMP fail to provide inference speed improvements on CPU hardware?",
+      "intent": "RESULT",
+      "baseline": {
+        "answer": "LLM Generation failed: 429 RESOURCE_EXHAUSTED. {'error': {'code': 429, 'message': 'You exceeded your current quota, please check your plan and billing details. For more information on this error, head to: https://ai.google.dev/gemini-api/docs/rate-limits. To monitor your current usage, head to: https://ai.dev/rate-limit. \\n* Quota exceeded for metric: generativelanguage.googleapis.com/generate_content_free_tier_requests, limit: 20, model: gemini-2.5-flash\\nPlease retry in 38.772537363s.', 'status': 'RESOURCE_EXHAUSTED', 'details': [{'@type': 'type.googleapis.com/google.rpc.Help', 'links': [{'description': 'Learn more about Gemini API quotas', 'url': 'https://ai.google.dev/gemini-api/docs/rate-limits'}]}, {'@type': 'type.googleapis.com/google.rpc.QuotaFailure', 'violations': [{'quotaMetric': 'generativelanguage.googleapis.com/generate_content_free_tier_requests', 'quotaId': 'GenerateRequestsPerDayPerProjectPerModel-FreeTier', 'quotaDimensions': {'model': 'gemini-2.5-flash', 'location': 'global'}, 'quotaValue': '20'}]}, {'@type': 'type.googleapis.com/google.rpc.RetryInfo', 'retryDelay': '38s'}]}}. Please try again later.",
+        "tokens": 1036,
+        "latency": 5.9332358837127686
+      },
+      "adaptive": {
+        "answer": "LLM Generation failed: 429 RESOURCE_EXHAUSTED. {'error': {'code': 429, 'message': 'You exceeded your current quota, please check your plan and billing details. For more information on this error, head to: https://ai.google.dev/gemini-api/docs/rate-limits. To monitor your current usage, head to: https://ai.dev/rate-limit. \\n* Quota exceeded for metric: generativelanguage.googleapis.com/generate_content_free_tier_requests, limit: 20, model: gemini-2.5-flash\\nPlease retry in 31.495877462s.', 'status': 'RESOURCE_EXHAUSTED', 'details': [{'@type': 'type.googleapis.com/google.rpc.Help', 'links': [{'description': 'Learn more about Gemini API quotas', 'url': 'https://ai.google.dev/gemini-api/docs/rate-limits'}]}, {'@type': 'type.googleapis.com/google.rpc.QuotaFailure', 'violations': [{'quotaMetric': 'generativelanguage.googleapis.com/generate_content_free_tier_requests', 'quotaId': 'GenerateRequestsPerDayPerProjectPerModel-FreeTier', 'quotaDimensions': {'location': 'global', 'model': 'gemini-2.5-flash'}, 'quotaValue': '20'}]}, {'@type': 'type.googleapis.com/google.rpc.RetryInfo', 'retryDelay': '31s'}]}}. Please try again later.",
+        "tokens": 757,
+        "latency": 7.220163345336914,
+        "num_sentences": 2
+      },
+      "metrics": {
+        "token_reduction": 26.930501930501926,
+        "latency_diff": 1.2869274616241455
+      }
+    },
+    {
+      "query": "How does batch size influence model generalization and accuracy in the experiments?",
+      "intent": "METHOD",
+      "baseline": {
+        "answer": "In the experiments, a batch size of 128 consistently matches or outperforms a batch size of 256 on test accuracy. This is attributed to smaller batches introducing more gradient noise, which acts as implicit regularization, steering the optimizer toward flatter loss minima that generalize better. The effect on accuracy is small, usually under one percentage point, but consistent.",
+        "tokens": 1033,
+        "latency": 8.864078044891357
+      },
+      "adaptive": {
+        "answer": "LLM Generation failed: 429 RESOURCE_EXHAUSTED. {'error': {'code': 429, 'message': 'You exceeded your current quota, please check your plan and billing details. For more information on this error, head to: https://ai.google.dev/gemini-api/docs/rate-limits. To monitor your current usage, head to: https://ai.dev/rate-limit. \\n* Quota exceeded for metric: generativelanguage.googleapis.com/generate_content_free_tier_requests, limit: 20, model: gemini-2.5-flash\\nPlease retry in 15.521208573s.', 'status': 'RESOURCE_EXHAUSTED', 'details': [{'@type': 'type.googleapis.com/google.rpc.Help', 'links': [{'description': 'Learn more about Gemini API quotas', 'url': 'https://ai.google.dev/gemini-api/docs/rate-limits'}]}, {'@type': 'type.googleapis.com/google.rpc.QuotaFailure', 'violations': [{'quotaMetric': 'generativelanguage.googleapis.com/generate_content_free_tier_requests', 'quotaId': 'GenerateRequestsPerDayPerProjectPerModel-FreeTier', 'quotaDimensions': {'location': 'global', 'model': 'gemini-2.5-flash'}, 'quotaValue': '20'}]}, {'@type': 'type.googleapis.com/google.rpc.RetryInfo', 'retryDelay': '15s'}]}}. Please try again later.",
+        "tokens": 706,
+        "latency": 7.160454511642456,
+        "num_sentences": 1
+      },
+      "metrics": {
+        "token_reduction": 31.655372700871254,
+        "latency_diff": -1.7036235332489014
+      }
+    },
+    {
+      "query": "What limitations of the study are identified, particularly regarding model architecture and hardware scope?",
+      "intent": "METHOD",
+      "baseline": {
+        "answer": "LLM Generation failed: 429 RESOURCE_EXHAUSTED. {'error': {'code': 429, 'message': 'You exceeded your current quota, please check your plan and billing details. For more information on this error, head to: https://ai.google.dev/gemini-api/docs/rate-limits. To monitor your current usage, head to: https://ai.dev/rate-limit. \\n* Quota exceeded for metric: generativelanguage.googleapis.com/generate_content_free_tier_requests, limit: 20, model: gemini-2.5-flash\\nPlease retry in 9.761202002s.', 'status': 'RESOURCE_EXHAUSTED', 'details': [{'@type': 'type.googleapis.com/google.rpc.Help', 'links': [{'description': 'Learn more about Gemini API quotas', 'url': 'https://ai.google.dev/gemini-api/docs/rate-limits'}]}, {'@type': 'type.googleapis.com/google.rpc.QuotaFailure', 'violations': [{'quotaMetric': 'generativelanguage.googleapis.com/generate_content_free_tier_requests', 'quotaId': 'GenerateRequestsPerDayPerProjectPerModel-FreeTier', 'quotaDimensions': {'location': 'global', 'model': 'gemini-2.5-flash'}, 'quotaValue': '20'}]}, {'@type': 'type.googleapis.com/google.rpc.RetryInfo', 'retryDelay': '9s'}]}}. Please try again later.",
+        "tokens": 999,
+        "latency": 5.741545915603638
+      },
+      "adaptive": {
+        "answer": "LLM Generation failed: 429 RESOURCE_EXHAUSTED. {'error': {'code': 429, 'message': 'You exceeded your current quota, please check your plan and billing details. For more information on this error, head to: https://ai.google.dev/gemini-api/docs/rate-limits. To monitor your current usage, head to: https://ai.dev/rate-limit. \\n* Quota exceeded for metric: generativelanguage.googleapis.com/generate_content_free_tier_requests, limit: 20, model: gemini-2.5-flash\\nPlease retry in 2.716208606s.', 'status': 'RESOURCE_EXHAUSTED', 'details': [{'@type': 'type.googleapis.com/google.rpc.Help', 'links': [{'description': 'Learn more about Gemini API quotas', 'url': 'https://ai.google.dev/gemini-api/docs/rate-limits'}]}, {'@type': 'type.googleapis.com/google.rpc.QuotaFailure', 'violations': [{'quotaMetric': 'generativelanguage.googleapis.com/generate_content_free_tier_requests', 'quotaId': 'GenerateRequestsPerDayPerProjectPerModel-FreeTier', 'quotaDimensions': {'model': 'gemini-2.5-flash', 'location': 'global'}, 'quotaValue': '20'}]}, {'@type': 'type.googleapis.com/google.rpc.RetryInfo', 'retryDelay': '2s'}]}}. Please try again later.",
+        "tokens": 739,
+        "latency": 7.062359809875488,
+        "num_sentences": 2
+      },
+      "metrics": {
+        "token_reduction": 26.026026026026027,
+        "latency_diff": 1.3208138942718506
+      }
+    },
+    {
+      "query": "What future work is suggested to improve inference optimization, especially in terms of quantization and deployment?",
+      "intent": "DEFINITION",
+      "baseline": {
+        "answer": "LLM Generation failed: 429 RESOURCE_EXHAUSTED. {'error': {'code': 429, 'message': 'You exceeded your current quota, please check your plan and billing details. For more information on this error, head to: https://ai.google.dev/gemini-api/docs/rate-limits. To monitor your current usage, head to: https://ai.dev/rate-limit. \\n* Quota exceeded for metric: generativelanguage.googleapis.com/generate_content_free_tier_requests, limit: 20, model: gemini-2.5-flash\\nPlease retry in 55.784706197s.', 'status': 'RESOURCE_EXHAUSTED', 'details': [{'@type': 'type.googleapis.com/google.rpc.Help', 'links': [{'description': 'Learn more about Gemini API quotas', 'url': 'https://ai.google.dev/gemini-api/docs/rate-limits'}]}, {'@type': 'type.googleapis.com/google.rpc.QuotaFailure', 'violations': [{'quotaMetric': 'generativelanguage.googleapis.com/generate_content_free_tier_requests', 'quotaId': 'GenerateRequestsPerDayPerProjectPerModel-FreeTier', 'quotaDimensions': {'location': 'global', 'model': 'gemini-2.5-flash'}, 'quotaValue': '20'}]}, {'@type': 'type.googleapis.com/google.rpc.RetryInfo', 'retryDelay': '55s'}]}}. Please try again later.",
+        "tokens": 1052,
+        "latency": 6.890018701553345
+      },
+      "adaptive": {
+        "answer": "LLM Generation failed: 429 RESOURCE_EXHAUSTED. {'error': {'code': 429, 'message': 'You exceeded your current quota, please check your plan and billing details. For more information on this error, head to: https://ai.google.dev/gemini-api/docs/rate-limits. To monitor your current usage, head to: https://ai.dev/rate-limit. \\n* Quota exceeded for metric: generativelanguage.googleapis.com/generate_content_free_tier_requests, limit: 20, model: gemini-2.5-flash\\nPlease retry in 48.477913273s.', 'status': 'RESOURCE_EXHAUSTED', 'details': [{'@type': 'type.googleapis.com/google.rpc.Help', 'links': [{'description': 'Learn more about Gemini API quotas', 'url': 'https://ai.google.dev/gemini-api/docs/rate-limits'}]}, {'@type': 'type.googleapis.com/google.rpc.QuotaFailure', 'violations': [{'quotaMetric': 'generativelanguage.googleapis.com/generate_content_free_tier_requests', 'quotaId': 'GenerateRequestsPerDayPerProjectPerModel-FreeTier', 'quotaDimensions': {'location': 'global', 'model': 'gemini-2.5-flash'}, 'quotaValue': '20'}]}, {'@type': 'type.googleapis.com/google.rpc.RetryInfo', 'retryDelay': '48s'}]}}. Please try again later.",
+        "tokens": 741,
+        "latency": 7.343699932098389,
+        "num_sentences": 2
+      },
+      "metrics": {
+        "token_reduction": 29.562737642585546,
+        "latency_diff": 0.45368123054504395
+      }
+    }
+  ]
+}

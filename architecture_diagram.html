@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Adaptive RAG Vertical Architecture Diagram - High Res</title>
+    <style>
+        body { font-family: Arial, sans-serif; background: #ffffff; display: flex; justify-content: center; padding: 20px; }
+        .svg-container { max-width: 100%; background: #ffffff; }
+        text { font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif; fill: #333; }
+        .title { font-weight: bold; font-size: 22px; }
+        .subtitle { font-size: 18px; }
+        .arrow-text { font-size: 20px; font-weight: bold; fill: #2c3e50; }
+        .layer-title { font-size: 26px; font-weight: bold; fill: #2C4C69; }
+    </style>
+</head>
+<body>
+    <div class="svg-container">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1100 1560" width="100%" height="100%">
+            <defs>
+                <marker id="arrow-solid" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto">
+                    <path d="M 0 0 L 10 5 L 0 10 z" fill="#333333" />
+                </marker>
+                <marker id="arrow-dashed" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto">
+                    <path d="M 0 0 L 10 5 L 0 10 z" fill="#D4AC0D" />
+                </marker>
+            </defs>
+
+            <!-- OFFLINE LAYER -->
+            <rect x="20" y="20" width="1060" height="180" fill="#FAFAFA" stroke="#BDC3C7" stroke-width="2" stroke-dasharray="8,4" rx="8" />
+            <rect x="35" y="35" width="410" height="30" fill="#FAFAFA" />
+            <text x="50" y="58" class="layer-title" fill="#333">OFFLINE DOCUMENT INGESTION</text>
+
+            <rect x="50" y="90" width="180" height="90" rx="8" fill="#FFFFFF" stroke="#7F8C8D" stroke-width="2" />
+            <text x="140" y="130" text-anchor="middle" class="title">Source</text>
+            <text x="140" y="160" text-anchor="middle" class="title">Documents</text>
+
+            <path d="M 230 135 L 290 135" stroke="#333" stroke-width="2" marker-end="url(#arrow-solid)" />
+
+            <rect x="290" y="90" width="180" height="90" rx="8" fill="#FFFFFF" stroke="#7F8C8D" stroke-width="2" />
+            <text x="380" y="130" text-anchor="middle" class="title">Section-Aware</text>
+            <text x="380" y="160" text-anchor="middle" class="title">Chunker</text>
+
+            <path d="M 470 135 L 530 135" stroke="#333" stroke-width="2" marker-end="url(#arrow-solid)" />
+
+            <rect x="530" y="90" width="180" height="90" rx="8" fill="#FFFFFF" stroke="#7F8C8D" stroke-width="2" />
+            <text x="620" y="130" text-anchor="middle" class="title">Embedding</text>
+            <text x="620" y="160" text-anchor="middle" class="title">Generator</text>
+
+            <path d="M 710 135 L 770 135" stroke="#333" stroke-width="2" marker-end="url(#arrow-solid)" />
+
+            <!-- Dual Index Construction -->
+            <rect x="770" y="80" width="280" height="105" rx="8" fill="#FFFFFF" stroke="#7F8C8D" stroke-width="2" />
+            <text x="910" y="115" text-anchor="middle" class="title">Dual Index</text>
+            
+            <rect x="785" y="130" width="120" height="45" rx="4" fill="#E8F4F8" stroke="#5B9BD5" stroke-width="2" />
+            <text x="845" y="160" text-anchor="middle" class="title">FAISS</text>
+
+            <rect x="915" y="130" width="120" height="45" rx="4" fill="#F2F2F2" stroke="#7F8C8D" stroke-width="2" />
+            <text x="975" y="160" text-anchor="middle" class="title">BM25</text>
+
+            <!-- ONLINE LAYER -->
+            <rect x="20" y="240" width="1060" height="1300" fill="#FAFAFA" stroke="#82CCDD" stroke-width="2" stroke-dasharray="8,4" rx="8" />
+
+            <!-- Indexed Chunks Path -->
+            <path d="M 910 185 L 910 220 L 300 220 L 300 525 L 350 525" stroke="#333" stroke-width="2" fill="none" marker-end="url(#arrow-solid)" />
+            <rect x="470" y="210" width="160" height="20" fill="#FFFFFF" />
+            <text x="550" y="226" text-anchor="middle" class="subtitle">Indexed Chunks</text>
+
+            <!-- Online Layer Title -->
+            <rect x="35" y="255" width="380" height="30" fill="#FAFAFA" />
+            <text x="50" y="278" class="layer-title">ONLINE ADAPTIVE PIPELINE</text>
+
+            <!-- User Query -->
+            <rect x="490" y="280" width="120" height="80" rx="8" fill="#FFFFFF" stroke="#333" stroke-width="2" />
+            <text x="550" y="315" text-anchor="middle" class="title">User</text>
+            <text x="550" y="345" text-anchor="middle" class="title">Query</text>
+
+            <!-- Intent Detection -->
+            <rect x="790" y="380" width="260" height="80" rx="8" fill="#FFFDF4" stroke="#D4AC0D" stroke-width="2" />
+            <text x="920" y="415" text-anchor="middle" class="title">Heuristic Intent</text>
+            <text x="920" y="445" text-anchor="middle" class="title">Detection</text>
+
+            <!-- Paths from Query -->
+            <path d="M 550 360 L 550 430" stroke="#333" stroke-width="2" fill="none" marker-end="url(#arrow-solid)" />
+            <path d="M 610 320 L 920 320 L 920 380" stroke="#333" stroke-width="2" fill="none" marker-end="url(#arrow-solid)" />
+
+            <!-- 1. HYBRID RETRIEVAL -->
+            <rect x="350" y="430" width="400" height="140" rx="8" fill="#F4F8FC" stroke="#5B9BD5" stroke-width="2" />
+            <text x="550" y="460" text-anchor="middle" class="title" fill="#2C4C69">1. HYBRID RETRIEVAL</text>
+            <line x1="350" y1="470" x2="750" y2="470" stroke="#5B9BD5" stroke-width="1" />
+            
+            <rect x="410" y="500" width="120" height="50" rx="4" fill="#E8F4F8" stroke="#5B9BD5" stroke-width="2" />
+            <text x="470" y="532" text-anchor="middle" class="title">FAISS</text>
+
+            <rect x="570" y="500" width="120" height="50" rx="4" fill="#F2F2F2" stroke="#7F8C8D" stroke-width="2" />
+            <text x="630" y="532" text-anchor="middle" class="title">BM25</text>
+
+            <!-- Arrow 1 -> 2 -->
+            <path d="M 550 570 L 550 620" stroke="#333" stroke-width="2" marker-end="url(#arrow-solid)" />
+            <text x="570" y="600" text-anchor="start" class="arrow-text">≤ 60 Candidates</text>
+
+            <!-- 2. FUSION & FILTERING -->
+            <rect x="350" y="620" width="400" height="120" rx="8" fill="#F4F8FC" stroke="#5B9BD5" stroke-width="2" />
+            <text x="550" y="650" text-anchor="middle" class="title" fill="#2C4C69">2. FUSION &amp; FILTERING</text>
+            <line x1="350" y1="660" x2="750" y2="660" stroke="#5B9BD5" stroke-width="1" />
+
+            <text x="550" y="695" text-anchor="middle" class="title">Min-Max Score Fusion</text>
+            <text x="550" y="725" text-anchor="middle" class="title">Diversity-Aware Filtering</text>
+
+            <!-- Arrow 2 -> 3 -->
+            <path d="M 550 740 L 550 790" stroke="#333" stroke-width="2" marker-end="url(#arrow-solid)" />
+            <text x="570" y="770" text-anchor="start" class="arrow-text">≤ 40 Candidates</text>
+
+            <!-- 3. RANKING -->
+            <rect x="350" y="790" width="400" height="120" rx="8" fill="#FDF8FD" stroke="#9B59B6" stroke-width="2" />
+            <text x="550" y="820" text-anchor="middle" class="title" fill="#7D3C98">3. RANKING</text>
+            <line x1="350" y1="830" x2="750" y2="830" stroke="#9B59B6" stroke-width="1" />
+
+            <text x="550" y="865" text-anchor="middle" class="title">Cross-Encoder Reranking</text>
+            <text x="550" y="895" text-anchor="middle" class="title">Intent-Conditional Scoring</text>
+
+            <!-- Arrow 3 -> 4 -->
+            <path d="M 550 910 L 550 960" stroke="#333" stroke-width="2" marker-end="url(#arrow-solid)" />
+            <text x="570" y="940" text-anchor="start" class="arrow-text">Top-K Passages</text>
+
+            <!-- 4. CONTEXT COMPRESSION -->
+            <rect x="350" y="960" width="400" height="300" rx="8" fill="#F4FAF4" stroke="#52BE80" stroke-width="2" />
+            <text x="550" y="990" text-anchor="middle" class="title" fill="#1E8449">4. CONTEXT COMPRESSION</text>
+            <line x1="350" y1="1000" x2="750" y2="1000" stroke="#52BE80" stroke-width="1" />
+
+            <rect x="380" y="1020" width="340" height="45" rx="4" fill="#FFFFFF" stroke="#7F8C8D" stroke-width="1" />
+            <text x="550" y="1048" text-anchor="middle" class="title">Protected Chunk Bypass</text>
+
+            <path d="M 550 1065 L 550 1080" stroke="#333" stroke-width="2" marker-end="url(#arrow-solid)" />
+
+            <rect x="380" y="1080" width="340" height="45" rx="4" fill="#FFFFFF" stroke="#7F8C8D" stroke-width="1" />
+            <text x="550" y="1108" text-anchor="middle" class="title">Sentence Segmentation</text>
+
+            <path d="M 550 1125 L 550 1140" stroke="#333" stroke-width="2" marker-end="url(#arrow-solid)" />
+
+            <rect x="380" y="1140" width="340" height="45" rx="4" fill="#FFFFFF" stroke="#7F8C8D" stroke-width="1" />
+            <text x="550" y="1168" text-anchor="middle" class="title">Intent-Aware Scoring</text>
+
+            <path d="M 550 1185 L 550 1200" stroke="#333" stroke-width="2" marker-end="url(#arrow-solid)" />
+
+            <rect x="380" y="1200" width="340" height="45" rx="4" fill="#FFFFFF" stroke="#7F8C8D" stroke-width="1" />
+            <text x="550" y="1228" text-anchor="middle" class="title">0-1 Knapsack Opt.</text>
+
+            <!-- Arrow 4 -> 5 -->
+            <path d="M 550 1260 L 550 1310" stroke="#333" stroke-width="2" marker-end="url(#arrow-solid)" />
+            <text x="570" y="1290" text-anchor="start" class="arrow-text">≤ 500 Tokens</text>
+
+            <!-- 5. GENERATION -->
+            <rect x="350" y="1310" width="400" height="120" rx="8" fill="#FFFBF4" stroke="#F39C12" stroke-width="2" />
+            <text x="550" y="1340" text-anchor="middle" class="title" fill="#D68910">5. GENERATION</text>
+            <line x1="350" y1="1350" x2="750" y2="1350" stroke="#F39C12" stroke-width="1" />
+
+            <text x="550" y="1385" text-anchor="middle" class="title">Context Assembly</text>
+            <text x="550" y="1415" text-anchor="middle" class="title">LLM Generator</text>
+
+            <!-- Final Answer -->
+            <path d="M 550 1430 L 550 1480" stroke="#333" stroke-width="2" fill="none" marker-end="url(#arrow-solid)" />
+            <rect x="490" y="1480" width="120" height="60" rx="4" fill="#FFFFFF" stroke="#333" stroke-width="2" />
+            <text x="550" y="1518" text-anchor="middle" class="title">Answer</text>
+
+            <!-- INTENT CONTROL SIGNALS -->
+            <path d="M 920 460 L 920 1162" stroke="#D4AC0D" stroke-width="2" stroke-dasharray="6,4" fill="none" />
+            <path d="M 920 888 L 750 888" stroke="#D4AC0D" stroke-width="2" fill="none" marker-end="url(#arrow-dashed)" />
+            <path d="M 920 1162 L 720 1162" stroke="#D4AC0D" stroke-width="2" fill="none" marker-end="url(#arrow-dashed)" />
+
+            <rect x="770" y="1152" width="100" height="20" fill="#FAFAFA" />
+            <text x="820" y="1166" text-anchor="middle" class="subtitle" fill="#B8A369" font-weight="bold">Weight Bias</text>
+
+        </svg>
+    </div>
+</body>
+</html>

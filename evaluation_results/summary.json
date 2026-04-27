@@ -1,0 +1,11 @@
+{
+  "total_papers": 4,
+  "total_queries": 60,
+  "avg_token_reduction": 33.33013811356672,
+  "min_token_reduction": 14.918414918414925,
+  "max_token_reduction": 57.94165316045381,
+  "avg_latency_baseline": 7.347527011235555,
+  "avg_latency_adaptive": 9.101157168547312,
+  "avg_latency_difference": 1.7536301573117568,
+  "avg_sentences_selected": 1.7
+}

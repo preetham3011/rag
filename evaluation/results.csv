@@ -1,0 +1,11 @@
+query,intent,baseline_tokens,adaptive_tokens,reduction_ratio,latency_baseline,latency_adaptive,num_sentences,baseline_answer,adaptive_answer
+What model size reduction is achieved using INT8 quantization?,RESULT,1081,696,35.62,5.6712,11.4776,0,INT8 quantization cuts model storage by roughly 3.69×.,3.69× reduction.
+What accuracy drop is observed after applying quantization?,RESULT,1072,674,37.13,7.3914,8.013,0,Not found in context.,Under 0.1% drop in most runs.
+How does INT8 quantization reduce model size and computation?,METHOD,1081,731,32.38,5.9171,6.7388,0,INT8 quantization cuts model storage by roughly 3.69×.,INT8 quantization cuts model storage by roughly 3.69× with negligible accuracy cost.
+How does mixed precision (AMP) improve inference performance?,METHOD,1070,711,33.55,6.7763,7.2811,0,"AMP improves inference performance on hardware with Tensor Core support, but offers no practical benefit for CPU-bound inference workloads.",AMP offers speedup only when Tensor Cores are available.
+What is INT8 quantization in deep learning models?,DEFINITION,1055,711,32.61,5.8099,7.4219,0,INT8 quantization: Compressing weight values into 8-bit integers after training completes.,Not found in context.
+What is Automatic Mixed Precision (AMP)?,DEFINITION,1158,695,39.98,5.945,7.0559,0,,
+How does INT8 quantization compare to AMP in performance and efficiency?,METHOD,1071,720,32.77,5.9651,9.189,0,,
+"What are the differences between FP32, FP16, and INT8 precision?",DEFINITION,1108,668,39.71,6.8909,9.0746,0,,
+What are the limitations of INT8 quantization?,DEFINITION,1037,700,32.5,7.2347,10.659,0,,
+What trade-offs are involved in using AMP for inference?,DEFINITION,1036,713,31.18,5.417,7.4565,0,,

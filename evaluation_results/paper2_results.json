@@ -1,0 +1,291 @@
+{
+  "paper_id": "paper2",
+  "num_queries": 15,
+  "results": [
+    {
+      "query": "What is the main objective of the proposed hybrid Vision Transformer and Mix Transformer ensemble in brain tumor classification?",
+      "intent": "DEFINITION",
+      "baseline": {
+        "answer": "To improve classification reliability and diagnostic accuracy in multiclass brain tumor classification using MRI images.",
+        "tokens": 1067,
+        "latency": 5.768727779388428
+      },
+      "adaptive": {
+        "answer": "The main objective is to improve feature representation, classification reliability, and diagnostic accuracy in brain tumor classification from MRI images.",
+        "tokens": 661,
+        "latency": 9.111231327056885,
+        "num_sentences": 1
+      },
+      "metrics": {
+        "token_reduction": 38.0506091846298,
+        "latency_diff": 3.342503547668457
+      }
+    },
+    {
+      "query": "What are the four tumor classes used in the MRI dataset for classification?",
+      "intent": "DEFINITION",
+      "baseline": {
+        "answer": "Glioma, Meningioma, Pituitary tumor, and No tumor.",
+        "tokens": 1097,
+        "latency": 6.396126985549927
+      },
+      "adaptive": {
+        "answer": "Glioma, Meningioma, Pituitary tumor, and No Tumor.",
+        "tokens": 733,
+        "latency": 8.760413885116577,
+        "num_sentences": 1
+      },
+      "metrics": {
+        "token_reduction": 33.18140382862352,
+        "latency_diff": 2.3642868995666504
+      }
+    },
+    {
+      "query": "How does the proposed ensemble combine the outputs of ViT and MiT models at the logit level?",
+      "intent": "METHOD",
+      "baseline": {
+        "answer": "The proposed ensemble combines the outputs of ViT and MiT models at the logit level using the formula: zens = \u03b1zViT + (1 \u2212\u03b1)zMiT, where \u03b1 is a weighting parameter.",
+        "tokens": 1168,
+        "latency": 6.657837867736816
+      },
+      "adaptive": {
+        "answer": "The ensemble prediction is formulated as: zens = \u03b1zViT + (1 \u2212\u03b1)zMiT, where \u03b1 is a weighting parameter.",
+        "tokens": 746,
+        "latency": 8.398784875869751,
+        "num_sentences": 2
+      },
+      "metrics": {
+        "token_reduction": 36.130136986301366,
+        "latency_diff": 1.7409470081329346
+      }
+    },
+    {
+      "query": "Why is logit-level fusion preferred over probability-level fusion in the proposed approach?",
+      "intent": "METHOD",
+      "baseline": {
+        "answer": "To avoid the undesirable effects of softmax saturation.",
+        "tokens": 928,
+        "latency": 6.448228597640991
+      },
+      "adaptive": {
+        "answer": "To avoid the undesirable effects of softmax saturation.",
+        "tokens": 724,
+        "latency": 12.29014277458191,
+        "num_sentences": 2
+      },
+      "metrics": {
+        "token_reduction": 21.98275862068966,
+        "latency_diff": 5.841914176940918
+      }
+    },
+    {
+      "query": "What preprocessing steps and data augmentation techniques are applied to the MRI images before training?",
+      "intent": "METHOD",
+      "baseline": {
+        "answer": "The MRI scans are processed with: \n1. Standard image size of 224 \u00d7 224 pixels, \n2. Normalization to match ImageNet pre-training statistics, \n3. Data augmentation including horizontal flipping and minor rotation within the range of \u00b110\u25e6.",
+        "tokens": 1017,
+        "latency": 6.245852708816528
+      },
+      "adaptive": {
+        "answer": "The MRI images are processed with a standard image size of 224 \u00d7 224 pixels, followed by normalization and data augmentation techniques including horizontal flipping and minor rotation within the range of \u00b110\u25e6.",
+        "tokens": 732,
+        "latency": 8.702452659606934,
+        "num_sentences": 2
+      },
+      "metrics": {
+        "token_reduction": 28.023598820058993,
+        "latency_diff": 2.4565999507904053
+      }
+    },
+    {
+      "query": "How is the dataset structured in terms of training and testing splits across different tumor classes?",
+      "intent": "DEFINITION",
+      "baseline": {
+        "answer": "The dataset is balanced across 4 classes (glioma, meningioma, pituitary tumor, and no tumor) with 400 images in each class, and the training, validation, and test sets are completely separated.",
+        "tokens": 1106,
+        "latency": 5.44927191734314
+      },
+      "adaptive": {
+        "answer": "The dataset structure is: Training - 1,400 images per class (5,600 total), Testing - 400 images per class (1,600 total), across 4 classes: glioma, meningioma, pituitary, and no tumor.",
+        "tokens": 703,
+        "latency": 7.145169258117676,
+        "num_sentences": 2
+      },
+      "metrics": {
+        "token_reduction": 36.4376130198915,
+        "latency_diff": 1.6958973407745361
+      }
+    },
+    {
+      "query": "What is the architecture of the Vision Transformer (ViT) used in this study?",
+      "intent": "DEFINITION",
+      "baseline": {
+        "answer": "Not found in context.",
+        "tokens": 935,
+        "latency": 5.530020713806152
+      },
+      "adaptive": {
+        "answer": "ViT-Base configuration with a 16 \u00d7 16 patch size, 12 layers of transformer encoders, 12 attention heads, and a 3,072 feed-forward dimension.",
+        "tokens": 560,
+        "latency": 6.7572548389434814,
+        "num_sentences": 1
+      },
+      "metrics": {
+        "token_reduction": 40.106951871657756,
+        "latency_diff": 1.227234125137329
+      }
+    },
+    {
+      "query": "How does the Mix Transformer (MiT) capture hierarchical feature representations for classification?",
+      "intent": "METHOD",
+      "baseline": {
+        "answer": "The Mix Transformer (MiT) captures hierarchical feature representations by producing hierarchical feature maps at different stride levels (4, 8, 16, and 32) in four encoding steps with varying channel sizes (64, 128, 320, and 512).",
+        "tokens": 1077,
+        "latency": 5.7364821434021
+      },
+      "adaptive": {
+        "answer": "The Mix Transformer (MiT) captures hierarchical feature representations through a setup that produces hierarchical feature maps at stride levels of 4, 8, 16, and 32, with channel sizes 64, 128, 320, and 512, integrating self-attention and spatial reduction ratios.",
+        "tokens": 679,
+        "latency": 7.167126417160034,
+        "num_sentences": 2
+      },
+      "metrics": {
+        "token_reduction": 36.95450324976788,
+        "latency_diff": 1.4306442737579346
+      }
+    },
+    {
+      "query": "What training strategy is used, including transfer learning and progressive unfreezing of layers?",
+      "intent": "DEFINITION",
+      "baseline": {
+        "answer": "The training strategy uses transfer learning with ImageNet-pretrained weights, and progressive unfreezing of layers, where the backbone is frozen for the initial 5 epochs.",
+        "tokens": 1175,
+        "latency": 5.836560964584351
+      },
+      "adaptive": {
+        "answer": "The training strategy includes transfer learning with ImageNet-pretrained weights, progressive layer unfreezing, and cosine learning-rate scheduling with warmup, using Automatic Mixed Precision (AMP) on an NVIDIA T4 GPU.",
+        "tokens": 783,
+        "latency": 7.273707389831543,
+        "num_sentences": 2
+      },
+      "metrics": {
+        "token_reduction": 33.361702127659576,
+        "latency_diff": 1.4371464252471924
+      }
+    },
+    {
+      "query": "What role does test-time augmentation (TTA) play in improving model performance?",
+      "intent": "RESULT",
+      "baseline": {
+        "answer": "TTA is used to enhance the prediction robustness.",
+        "tokens": 1119,
+        "latency": 6.0383312702178955
+      },
+      "adaptive": {
+        "answer": "Test-time augmentation (TTA) is used to enhance the prediction robustness.",
+        "tokens": 765,
+        "latency": 7.373556613922119,
+        "num_sentences": 2
+      },
+      "metrics": {
+        "token_reduction": 31.63538873994638,
+        "latency_diff": 1.3352253437042236
+      }
+    },
+    {
+      "query": "What evaluation metrics are used to assess the model\u2019s performance, and why are they appropriate for this task?",
+      "intent": "RESULT",
+      "baseline": {
+        "answer": "The model's performance is assessed using overall accuracy, recall, precision, and the macro average F1 score.\n\nThese are commonly adopted classification metrics. High test accuracy (e.g., 99.01% for the ensemble model) indicates strong reliability and stability in tumor classification, which is crucial for differentiating between different types of tumors.",
+        "tokens": 1213,
+        "latency": 10.97735047340393
+      },
+      "adaptive": {
+        "answer": "The evaluation metrics used to assess the model's performance are:\n\n1.  **Overall accuracy**\n2.  **Recall**\n3.  **Precision**\n4.  **Macro average F1 score**\n5.  **Receiver Operating Characteristic (ROC) analysis**\n6.  **Area Under the Curve (AUC)**\n\nThese metrics are appropriate for this task because:\n\n*   **Overall accuracy** demonstrates the model's strong capability in distinguishing between various categories of tumor, especially when evaluated with a balanced dataset to ensure fair assessment.\n*   **Recall, Precision, and Macro average F1 score** are commonly adopted classification metrics. The **macro average F1 score** specifically indicates balanced predictive performance across all classes of tumor, which is crucial in medical diagnosis to ensure no single tumor type is disproportionately misclassified.\n*   **ROC Curve Analysis** evaluates the model's ability to correctly differentiate between positive and negative instances across different classification thresholds. A higher **AUC score** suggests high sensitivity and high specificity, enabling the model to accurately identify and classify tumor cases while minimizing false detections, which is vital for reliable diagnostic tools.",
+        "tokens": 740,
+        "latency": 13.601759910583496,
+        "num_sentences": 2
+      },
+      "metrics": {
+        "token_reduction": 38.99422918384171,
+        "latency_diff": 2.6244094371795654
+      }
+    },
+    {
+      "query": "What are the overall accuracy and macro-average F1-score achieved by the proposed ensemble model?",
+      "intent": "RESULT",
+      "baseline": {
+        "answer": "The proposed ensemble model achieved an overall accuracy of 99.01% and a macro-average F1-score of 0.99.",
+        "tokens": 1143,
+        "latency": 9.429944276809692
+      },
+      "adaptive": {
+        "answer": "LLM Generation failed: 503 UNAVAILABLE. {'error': {'code': 503, 'message': 'This model is currently experiencing high demand. Spikes in demand are usually temporary. Please try again later.', 'status': 'UNAVAILABLE'}}. Please try again later.",
+        "tokens": 736,
+        "latency": 10.842622756958008,
+        "num_sentences": 2
+      },
+      "metrics": {
+        "token_reduction": 35.60804899387576,
+        "latency_diff": 1.4126784801483154
+      }
+    },
+    {
+      "query": "What insights does the confusion matrix provide about model performance and misclassifications?",
+      "intent": "RESULT",
+      "baseline": {
+        "answer": "The confusion matrix provides an in-depth view of the model's performance in classifying brain tumors. It shows that most predictive values are along the diagonal elements, representing correctly classified samples, which indicates the model's accuracy in determining different brain tumor classes. The few instances in the off-diagonal cells represent misclassifications, primarily observed in visually identical tumors like glioma and meningioma.",
+        "tokens": 1132,
+        "latency": 10.7275710105896
+      },
+      "adaptive": {
+        "answer": "The confusion matrix provides an in-depth view of the model's performance, showing that most samples are correctly classified (represented by dominant diagonal elements), which depicts the robustness and reliability of the model. Misclassifications are few and mainly occur between visually identical tumors like glioma and meningioma, leading to slightly lower performance (reduced precision and recall) in classifying meningioma due to its visual similarity to glioma in MRI scans.",
+        "tokens": 802,
+        "latency": 13.749599933624268,
+        "num_sentences": 2
+      },
+      "metrics": {
+        "token_reduction": 29.151943462897524,
+        "latency_diff": 3.022028923034668
+      }
+    },
+    {
+      "query": "Why is meningioma classification more challenging compared to other tumor types?",
+      "intent": "COMPARISON",
+      "baseline": {
+        "answer": "Meningioma classification is more challenging because its morphological characteristics visually resemble glioma tumors in MRI images, making them difficult to distinguish. This similarity leads to a slight reduction in precision and recall for the meningioma class.",
+        "tokens": 1055,
+        "latency": 14.440200805664062
+      },
+      "adaptive": {
+        "answer": "Meningioma is difficult to classify because its morphological characteristics in MRI images are often visually similar to glioma, making them hard to distinguish.",
+        "tokens": 684,
+        "latency": 7.017733335494995,
+        "num_sentences": 2
+      },
+      "metrics": {
+        "token_reduction": 35.165876777251185,
+        "latency_diff": -7.422467470169067
+      }
+    },
+    {
+      "query": "What limitations of the proposed model are discussed, particularly regarding dataset size and real-world deployment?",
+      "intent": "DEFINITION",
+      "baseline": {
+        "answer": "LLM Generation failed: 503 UNAVAILABLE. {'error': {'code': 503, 'message': 'This model is currently experiencing high demand. Spikes in demand are usually temporary. Please try again later.', 'status': 'UNAVAILABLE'}}. Please try again later.",
+        "tokens": 993,
+        "latency": 7.514256715774536
+      },
+      "adaptive": {
+        "answer": "The limitations discussed regarding real-world deployment include the need to:\n*   Seek clinical validation to test its real-world applicability.\n*   Extend the model to three-dimensional MRI data, as MRI data is inherently 3-D.\n*   Address multi-institutional variability.\n\nWhile the text does not explicitly state \"dataset size\" as a limitation, the need to cover \"multi-institutional variability\" and the \"inherently 3-D\" nature of MRI data in future studies implies that the current scope or representation of the data might be limited in these crucial dimensions.",
+        "tokens": 761,
+        "latency": 13.006385087966919,
+        "num_sentences": 2
+      },
+      "metrics": {
+        "token_reduction": 23.363544813695867,
+        "latency_diff": 5.492128372192383
+      }
+    }
+  ]
+}

@@ -39,14 +39,17 @@ def score_sentence(sentence: str, intent: str) -> float:
 
     # Generic factual-signal preservation (query-agnostic):
     # keep numerical/entity-heavy technical statements competitive.
+    base_score = len(sentence.split()) / 20
+    score += base_score
+
     if re.search(r"\d", sentence):
-        score += 0.06
+        score += 0.15
     if re.search(r"\b[A-Z]{2,}\b", sentence):
-        score += 0.04
+        score += 0.10
     if re.search(r"\b[A-Za-z]+[-_/][A-Za-z0-9]+\b", sentence):
-        score += 0.03
+        score += 0.08
     if re.search(r"\b[A-Za-z]+\d+[A-Za-z0-9]*\b", sentence):
-        score += 0.03
+        score += 0.07
     
     if intent == "RESULT":
         # Bonus for numerical content
@@ -231,6 +234,8 @@ def select_evidence(
     if token_budget is not None:
         print("Using optimization-based compression (knapsack)")
         selected = knapsack_select(candidate_pool, token_budget)
+        if len(selected) == 0:
+            selected = candidate_pool[:3]
         print(f"Selected {len(selected)} sentences under token budget")
         # Output sorted by score to keep previous downstream expectations.
         selected.sort(key=lambda x: x["score"], reverse=True)
@@ -239,68 +244,3 @@ def select_evidence(
     # Backward-compatible path without explicit budget.
     return candidate_pool[:top_k]
 
-
-if __name__ == "__main__":
-    print("Testing Evidence Selector")
-    print("=" * 70)
-    
-    # Mock retrieved chunks with different content types
-    retrieved_chunks = [
-        {
-            "chunk_id": 0,
-            "page": 5,
-            "section": "Results",
-            "text": "We achieved 95% accuracy on the test set. The F1 score was 0.92. Our model outperformed the baseline by 10%."
-        },
-        {
-            "chunk_id": 1,
-            "page": 3,
-            "section": "Method",
-            "text": "Our pipeline consists of three steps. First, we preprocess the data. The algorithm uses a multi-stage architecture."
-        },
-        {
-            "chunk_id": 2,
-            "page": 8,
-            "section": "API Reference",
-            "text": "Call the function with parameter x = 5. The method returns a tuple (result, status). Use argument verbose=True for debugging."
-        },
-        {
-            "chunk_id": 3,
-            "page": 1,
-            "section": "Introduction",
-            "text": "Machine learning is defined as the study of algorithms. Deep learning refers to neural networks with multiple layers."
-        },
-        {
-            "chunk_id": 4,
-            "page": 7,
-            "section": "Discussion",
-            "text": "We compare our approach versus the baseline. The difference in performance is significant. Our method is better in terms of speed."
-        }
-    ]
-    
-    # Test different intent types
-    test_cases = [
-        {"intent": "RESULT", "confidence": 0.8, "method": "keyword"},
-        {"intent": "METHOD", "confidence": 0.9, "method": "keyword"},
-        {"intent": "API_USAGE", "confidence": 0.85, "method": "keyword"},
-        {"intent": "DEFINITION", "confidence": 0.75, "method": "keyword"},
-        {"intent": "COMPARISON", "confidence": 0.7, "method": "keyword"}
-    ]
-    
-    for intent_info in test_cases:
-        print(f"\nIntent: {intent_info['intent']} (confidence: {intent_info['confidence']})")
-        print("-" * 70)
-        
-        evidence = select_evidence(
-            retrieved_chunks=retrieved_chunks,
-            intent_info=intent_info,
-            top_k=3
-        )
-        
-        print(f"Top 3 evidence sentences:")
-        for i, item in enumerate(evidence, 1):
-            print(f"\n{i}. [Score: {item['score']:.2f}] Page {item['page']} | {item['section']}")
-            print(f"   {item['sentence']}")
-    
-    print("\n" + "=" * 70)
-    print("Evidence selector test complete!")

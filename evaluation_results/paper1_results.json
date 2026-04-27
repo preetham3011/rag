@@ -1,0 +1,291 @@
+{
+  "paper_id": "paper1",
+  "num_queries": 15,
+  "results": [
+    {
+      "query": "What is the primary research question addressed by the Fluid World Models framework?",
+      "intent": "DEFINITION",
+      "baseline": {
+        "answer": "Can a neural network figure out the governing equations of fluid flow just by watching it?",
+        "tokens": 912,
+        "latency": 5.564019203186035
+      },
+      "adaptive": {
+        "answer": "Can a neural network figure out the governing equations of fluid flow just by watching it?",
+        "tokens": 748,
+        "latency": 12.503372430801392,
+        "num_sentences": 3
+      },
+      "metrics": {
+        "token_reduction": 17.982456140350877,
+        "latency_diff": 6.9393532276153564
+      }
+    },
+    {
+      "query": "What does the paper mean by 'self-supervised next-frame prediction' in the context of fluid dynamics?",
+      "intent": "DEFINITION",
+      "baseline": {
+        "answer": "Self-supervised next-frame prediction refers to the model predicting the next frame of fluid flow given a context window of consecutive frames, without using any physics-based loss terms or PDE labels, and training the model to minimize reconstruction error between predicted and observed frames.",
+        "tokens": 1043,
+        "latency": 5.928100824356079
+      },
+      "adaptive": {
+        "answer": "The paper means learning fluid dynamics purely through predicting the next frame, without any explicit physics supervision.",
+        "tokens": 669,
+        "latency": 8.091197729110718,
+        "num_sentences": 2
+      },
+      "metrics": {
+        "token_reduction": 35.858101629913705,
+        "latency_diff": 2.1630969047546387
+      }
+    },
+    {
+      "query": "How does the proposed model architecture (encoder, predictor, decoder) function to predict future fluid states?",
+      "intent": "METHOD",
+      "baseline": {
+        "answer": "Not found in context.",
+        "tokens": 1083,
+        "latency": 7.635942697525024
+      },
+      "adaptive": {
+        "answer": "The proposed model architecture functions as follows: (1) a ViT encoder patchifies input frames into spatial tokens, (2) a factored spatiotemporal transformer predictor applies spatial and temporal attention to predict the next latent, and (3) a CNN decoder upsamples the predicted latent back to pixel space via PixelShuffle.",
+        "tokens": 779,
+        "latency": 10.362181663513184,
+        "num_sentences": 2
+      },
+      "metrics": {
+        "token_reduction": 28.07017543859649,
+        "latency_diff": 2.726238965988159
+      }
+    },
+    {
+      "query": "Why did the authors choose a Vision Transformer (ViT) encoder instead of a convolutional encoder?",
+      "intent": "API_USAGE",
+      "baseline": {
+        "answer": "The authors chose ViT over convolutional encoders for two reasons: \n(1) self-attention learns relevant spatial relationships from data, \n(2) global attention captures long-range pressure effects naturally.",
+        "tokens": 1148,
+        "latency": 6.273755311965942
+      },
+      "adaptive": {
+        "answer": "The authors chose ViT over convolutional encoders for two reasons: \n(1) self-attention learns relevant spatial relationships from data, \n(2) global attention captures long-range pressure effects naturally.",
+        "tokens": 712,
+        "latency": 9.008349418640137,
+        "num_sentences": 1
+      },
+      "metrics": {
+        "token_reduction": 37.97909407665505,
+        "latency_diff": 2.7345941066741943
+      }
+    },
+    {
+      "query": "How does the factored spatiotemporal Transformer reduce computational complexity compared to full attention?",
+      "intent": "METHOD",
+      "baseline": {
+        "answer": "The factored spatiotemporal Transformer reduces computational complexity from O((k \u00b7 N\u209b)\u00b2) to O(k \u00b7 N\u209b\u00b2 + N\u209b \u00b7 k\u00b2), resulting in a 46\u00d7 reduction for the given configuration.",
+        "tokens": 1180,
+        "latency": 6.4481041431427
+      },
+      "adaptive": {
+        "answer": "The factored spatiotemporal Transformer reduces computational complexity from O((k \u00b7 N\u209b)\u00b2) to O(k \u00b7 N\u209b\u00b2 + N\u209b \u00b7 k\u00b2), resulting in a 46\u00d7 reduction for the given configuration.",
+        "tokens": 749,
+        "latency": 8.70558500289917,
+        "num_sentences": 1
+      },
+      "metrics": {
+        "token_reduction": 36.52542372881356,
+        "latency_diff": 2.2574808597564697
+      }
+    },
+    {
+      "query": "What role does the CNN decoder with PixelShuffle play in reconstructing velocity fields?",
+      "intent": "API_USAGE",
+      "baseline": {
+        "answer": "Not found in context.",
+        "tokens": 1080,
+        "latency": 9.318898677825928
+      },
+      "adaptive": {
+        "answer": "The CNN decoder with PixelShuffle reconstructs the full-resolution velocity field from the predicted latent via three upsampling stages.",
+        "tokens": 736,
+        "latency": 7.577059984207153,
+        "num_sentences": 2
+      },
+      "metrics": {
+        "token_reduction": 31.851851851851855,
+        "latency_diff": -1.7418386936187744
+      }
+    },
+    {
+      "query": "What are the components of the training loss function, and why is each term included?",
+      "intent": "DEFINITION",
+      "baseline": {
+        "answer": "The training loss function combines three terms: \nLrecon (pixel-space MSE), \nLrepr (latent-space prediction loss), and \nLms (multi-step autoregressive loss). \nEach term is included to improve the model's performance: Lrecon for pixel-space accuracy, Lrepr to prevent representation collapse, and Lms for rollout stability.",
+        "tokens": 1193,
+        "latency": 6.348691701889038
+      },
+      "adaptive": {
+        "answer": "The training loss function consists of three terms: \n1. Lrecon (pixel-space MSE) for accurate prediction, \n2. Lrepr (latent-space prediction loss) to prevent representation collapse, \n3. Lms (multi-step autoregressive loss) to improve rollout stability.",
+        "tokens": 729,
+        "latency": 7.167364835739136,
+        "num_sentences": 2
+      },
+      "metrics": {
+        "token_reduction": 38.89354568315172,
+        "latency_diff": 0.8186731338500977
+      }
+    },
+    {
+      "query": "What dataset is used for training and testing, and how is it partitioned across Reynolds numbers?",
+      "intent": "DEFINITION",
+      "baseline": {
+        "answer": "The CFDBench cylinder flow dataset is used. Training data spans Re \u2208 [4, 500] and test data covers Re \u2208 [600, 1000].",
+        "tokens": 901,
+        "latency": 7.066386938095093
+      },
+      "adaptive": {
+        "answer": "The dataset is the CFDBench cylinder flow dataset, partitioned as: \n- Training: 105 trajectories with Re \u2208 [4, 500] \n- Test: 11 trajectories with Re \u2208 [600, 1000].",
+        "tokens": 663,
+        "latency": 11.057158470153809,
+        "num_sentences": 2
+      },
+      "metrics": {
+        "token_reduction": 26.415094339622648,
+        "latency_diff": 3.990771532058716
+      }
+    },
+    {
+      "query": "How are the input fluid states represented in the dataset, and what preprocessing steps are applied?",
+      "intent": "METHOD",
+      "baseline": {
+        "answer": "Not found in context.",
+        "tokens": 1089,
+        "latency": 6.0464582443237305
+      },
+      "adaptive": {
+        "answer": "The input fluid states are represented as u(x, t) = (u, v) \u2208 \u211d\u00b2\u00d764\u00d764 on a uniform 64\u00d764 spatial grid. The preprocessing steps applied include patchifying each input frame into spatial tokens by the ViT encoder.",
+        "tokens": 743,
+        "latency": 15.765356063842773,
+        "num_sentences": 2
+      },
+      "metrics": {
+        "token_reduction": 31.772268135904504,
+        "latency_diff": 9.718897819519043
+      }
+    },
+    {
+      "query": "What performance metrics are used to evaluate the model, and what results are achieved on unseen Reynolds numbers?",
+      "intent": "RESULT",
+      "baseline": {
+        "answer": "Mean squared error (MSE) is used. The model yields identical MSE values for multiple cases at the same Reynolds number, and it captures vortex shedding structure, cylinder boundary layer, and wake dynamics in unseen Reynolds numbers (e.g. Re = 1000).",
+        "tokens": 894,
+        "latency": 6.660190105438232
+      },
+      "adaptive": {
+        "answer": "The model is evaluated using Mean Squared Error (MSE) and Root Mean Squared Error (RMSE). On unseen Reynolds numbers, the model achieves a single-step RMSE of ~0.1.",
+        "tokens": 641,
+        "latency": 11.066771507263184,
+        "num_sentences": 1
+      },
+      "metrics": {
+        "token_reduction": 28.299776286353474,
+        "latency_diff": 4.406581401824951
+      }
+    },
+    {
+      "query": "What evidence supports the claim of Reynolds number invariance in the model\u2019s predictions?",
+      "intent": "DEFINITION",
+      "baseline": {
+        "answer": "The model produces exactly identical errors for flows with the same Re but different fluid properties (\u03c1, \u03bc).",
+        "tokens": 1076,
+        "latency": 8.182053327560425
+      },
+      "adaptive": {
+        "answer": "The model produces identical prediction errors for flows with the same Reynolds number but different fluid properties.",
+        "tokens": 651,
+        "latency": 11.16127634048462,
+        "num_sentences": 1
+      },
+      "metrics": {
+        "token_reduction": 39.498141263940525,
+        "latency_diff": 2.9792230129241943
+      }
+    },
+    {
+      "query": "How does the model perform in autoregressive rollout, and what does this indicate about its learned dynamics?",
+      "intent": "METHOD",
+      "baseline": {
+        "answer": "The model maintains stable predictions through approximately t + 20, with gradual degradation thereafter, indicating it has learned a robust temporal evolution operator.",
+        "tokens": 1149,
+        "latency": 6.96299934387207
+      },
+      "adaptive": {
+        "answer": "The model maintains stable predictions for approximately 90 steps, with stable rollout extending to 87-101 steps before divergence, indicating it has learned a robust temporal evolution operator.",
+        "tokens": 715,
+        "latency": 7.0648205280303955,
+        "num_sentences": 2
+      },
+      "metrics": {
+        "token_reduction": 37.77197563098347,
+        "latency_diff": 0.1018211841583252
+      }
+    },
+    {
+      "query": "Why do the authors argue that generalization across Reynolds numbers implies implicit discovery of Navier-Stokes dynamics?",
+      "intent": "DEFINITION",
+      "baseline": {
+        "answer": "The authors argue that generalization across Reynolds numbers implies implicit discovery of Navier-Stokes dynamics because, according to the Buckingham Pi theorem, the Reynolds number is the sole governing parameter for fixed geometry, and the Navier-Stokes equations are the unique continuum-level PDE governing incompressible Newtonian fluids.",
+        "tokens": 1109,
+        "latency": 5.735468864440918
+      },
+      "adaptive": {
+        "answer": "The authors argue that generalization across Reynolds numbers implies implicit discovery of Navier-Stokes dynamics because the Navier-Stokes equations are the unique continuum-level PDE governing this fluid class, and the Buckingham Pi theorem guarantees Re is the sole governing parameter for fixed geometry.",
+        "tokens": 706,
+        "latency": 9.629304647445679,
+        "num_sentences": 1
+      },
+      "metrics": {
+        "token_reduction": 36.33904418394951,
+        "latency_diff": 3.8938357830047607
+      }
+    },
+    {
+      "query": "What are the key limitations of the proposed approach discussed in the paper?",
+      "intent": "DEFINITION",
+      "baseline": {
+        "answer": "Several limitations: \n1. Validation limited to 2D cylinder flow, \n2. Limited resolution (64\u00d764) and 2D restriction, \n3. Autoregressive predictions diverge after ~90 steps, \n4. Discovery is implicit, not extracting explicit symbolic PDE.",
+        "tokens": 929,
+        "latency": 6.139122724533081
+      },
+      "adaptive": {
+        "answer": "The key limitations are: \n1. Validation only on 2D cylinder flow, \n2. Limited resolution (64\u00d764) and 2D restriction, \n3. Autoregressive predictions diverge after ~90 steps, \n4. Implicit discovery without extracting an explicit symbolic PDE.",
+        "tokens": 779,
+        "latency": 7.592972278594971,
+        "num_sentences": 2
+      },
+      "metrics": {
+        "token_reduction": 16.146393972012916,
+        "latency_diff": 1.4538495540618896
+      }
+    },
+    {
+      "query": "What future research directions are proposed to extend the current work, particularly regarding equation extraction and generalization?",
+      "intent": "METHOD",
+      "baseline": {
+        "answer": "Combining the current approach with symbolic extraction via SINDy on latent dynamics.",
+        "tokens": 989,
+        "latency": 7.973107576370239
+      },
+      "adaptive": {
+        "answer": "Future work includes post-hoc equation extraction via SINDy, extension to multiple geometries, scaling to 3D flows, and negative controls on non-Newtonian fluids.",
+        "tokens": 708,
+        "latency": 11.366605043411255,
+        "num_sentences": 2
+      },
+      "metrics": {
+        "token_reduction": 28.412537917087967,
+        "latency_diff": 3.3934974670410156
+      }
+    }
+  ]
+}

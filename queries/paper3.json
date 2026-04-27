@@ -1,0 +1,62 @@
+[
+  {
+    "question": "What is the primary objective of the study comparing FP32, AMP, and INT8 quantization techniques?",
+    "type": "definition"
+  },
+  {
+    "question": "What are Automatic Mixed Precision (AMP) and Dynamic INT8 Quantization, and how do they differ from standard FP32 training?",
+    "type": "definition"
+  },
+  {
+    "question": "What dataset is used in the experiments, and how is it preprocessed before training?",
+    "type": "definition"
+  },
+  {
+    "question": "What is the architecture of the CNN model used for benchmarking, and why was a simple architecture chosen?",
+    "type": "method"
+  },
+  {
+    "question": "How are the four training configurations (A, B, C, D) defined in terms of epochs and batch sizes?",
+    "type": "method"
+  },
+  {
+    "question": "How is Dynamic INT8 quantization applied to the trained model, and which layers does it affect?",
+    "type": "method"
+  },
+  {
+    "question": "What metrics are used to evaluate model performance, and how is the Performance Index (PI) calculated?",
+    "type": "method"
+  },
+  {
+    "question": "How does INT8 quantization impact model accuracy compared to FP32 and AMP across different configurations?",
+    "type": "result"
+  },
+  {
+    "question": "What effect does INT8 quantization have on model size and compression ratio?",
+    "type": "result"
+  },
+  {
+    "question": "How do inference time and speedup differ between FP32, AMP, and INT8 models on CPU?",
+    "type": "result"
+  },
+  {
+    "question": "Why does INT8 quantization provide significant compression but only modest inference speedup in this study?",
+    "type": "reasoning"
+  },
+  {
+    "question": "Why does AMP fail to provide inference speed improvements on CPU hardware?",
+    "type": "reasoning"
+  },
+  {
+    "question": "How does batch size influence model generalization and accuracy in the experiments?",
+    "type": "reasoning"
+  },
+  {
+    "question": "What limitations of the study are identified, particularly regarding model architecture and hardware scope?",
+    "type": "definition"
+  },
+  {
+    "question": "What future work is suggested to improve inference optimization, especially in terms of quantization and deployment?",
+    "type": "reasoning"
+  }
+]

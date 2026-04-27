@@ -1287,7 +1287,7 @@ User    UI    IntentDetector  Embedder  Retriever  EvidenceSelector  BudgetMgr  
  │       │           │           │          │              │             │           │        │
  │       │           │           │          │              │             │           │<───API │
  │       │           │           │          │              │             │           │  call  │
- │       │           │           │          │              │             │           │ (Gemini)
+ │       │           │           │          │              │             │           │ (Gemini/Groq)
  │       │           │           │          │              │             │           │        │
  │       │           │           │          │              │             │           │<─answer│
  │       │           │           │          │              │             │           │        │

@@ -1,0 +1,62 @@
+[
+  {
+    "question": "What is the main objective of the proposed hybrid Vision Transformer and Mix Transformer ensemble in brain tumor classification?",
+    "type": "definition"
+  },
+  {
+    "question": "What are the four tumor classes used in the MRI dataset for classification?",
+    "type": "definition"
+  },
+  {
+    "question": "How does the proposed ensemble combine the outputs of ViT and MiT models at the logit level?",
+    "type": "method"
+  },
+  {
+    "question": "Why is logit-level fusion preferred over probability-level fusion in the proposed approach?",
+    "type": "reasoning"
+  },
+  {
+    "question": "What preprocessing steps and data augmentation techniques are applied to the MRI images before training?",
+    "type": "method"
+  },
+  {
+    "question": "How is the dataset structured in terms of training and testing splits across different tumor classes?",
+    "type": "definition"
+  },
+  {
+    "question": "What is the architecture of the Vision Transformer (ViT) used in this study?",
+    "type": "method"
+  },
+  {
+    "question": "How does the Mix Transformer (MiT) capture hierarchical feature representations for classification?",
+    "type": "method"
+  },
+  {
+    "question": "What training strategy is used, including transfer learning and progressive unfreezing of layers?",
+    "type": "method"
+  },
+  {
+    "question": "What role does test-time augmentation (TTA) play in improving model performance?",
+    "type": "method"
+  },
+  {
+    "question": "What evaluation metrics are used to assess the model’s performance, and why are they appropriate for this task?",
+    "type": "reasoning"
+  },
+  {
+    "question": "What are the overall accuracy and macro-average F1-score achieved by the proposed ensemble model?",
+    "type": "result"
+  },
+  {
+    "question": "What insights does the confusion matrix provide about model performance and misclassifications?",
+    "type": "result"
+  },
+  {
+    "question": "Why is meningioma classification more challenging compared to other tumor types?",
+    "type": "reasoning"
+  },
+  {
+    "question": "What limitations of the proposed model are discussed, particularly regarding dataset size and real-world deployment?",
+    "type": "definition"
+  }
+]

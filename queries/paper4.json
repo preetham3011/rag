@@ -1,0 +1,62 @@
+[
+    {
+        "question": "What is the main objective of leveraging user profile attributes in improving pedagogical accuracy of learning pathways?",
+        "type": "definition"
+    },
+    {
+        "question": "What is meant by pedagogical accuracy (adequacy) in the context of this study?",
+        "type": "definition"
+    },
+    {
+        "question": "What are the key differences between traditional recommender systems and technology enhanced learning (TEL) recommender systems?",
+        "type": "reasoning"
+    },
+    {
+        "question": "What user profile attributes are considered in the proposed framework, and why are they important?",
+        "type": "definition"
+    },
+    {
+        "question": "How are skill levels categorized according to Bloom’s taxonomy in the study?",
+        "type": "definition"
+    },
+    {
+        "question": "What challenges arise when working with nominal attributes such as learning strategy and presentation style?",
+        "type": "reasoning"
+    },
+    {
+        "question": "What is the purpose of the 'build_learner_subset' algorithm in the methodology?",
+        "type": "method"
+    },
+    {
+        "question": "How does the 'nominal_attributes_quantify' algorithm use Non-negative Matrix Factorization (NMF) to assign numerical values to nominal attributes?",
+        "type": "method"
+    },
+    {
+        "question": "How are learners grouped using clustering techniques in the 'group_learner' algorithm?",
+        "type": "method"
+    },
+    {
+        "question": "What role does the Apriori principle play in the 'frequent_attributes_filter' step?",
+        "type": "method"
+    },
+    {
+        "question": "How are learning resources ultimately tagged based on user profile attributes?",
+        "type": "method"
+    },
+    {
+        "question": "What dataset is used for experimentation, and how are user profile attributes incorporated into it?",
+        "type": "definition"
+    },
+    {
+        "question": "What insights are obtained from the similarity analysis of learning strategies and presentation styles (as shown in page 6 figures)?",
+        "type": "result"
+    },
+    {
+        "question": "What advantages does the proposed system provide over traditional recommendation approaches?",
+        "type": "result"
+    },
+    {
+        "question": "What limitations and future improvements are identified for enhancing the system’s performance and evaluation?",
+        "type": "reasoning"
+    }
+]
